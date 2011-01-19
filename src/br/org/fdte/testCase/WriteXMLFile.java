@@ -23,43 +23,43 @@ public class WriteXMLFile {
 	  DocumentBuilderFactory docFactory = DocumentBuilderFactory. newInstance ( ) ;
 	  DocumentBuilder docBuilder = docFactory. newDocumentBuilder ( ) ;
 
-	  //root elements / / Elementos de raiz
 	  Document doc = docBuilder. newDocument ( ) ;
-	  Element rootElement = doc. createElement ( "company" ) ;
+	  Element rootElement = doc. createElement ( "testCase" ) ;
 	  doc. appendChild ( rootElement ) ;
 
-	  //staff elements / / Elementos do pessoal
-	  Element staff = doc. createElement ( "Staff" ) ;
-	  rootElement. appendChild ( staff ) ;
+          Attr attrType = doc.createAttribute("type");
+          attrType.setValue("p");
+          rootElement.setAttributeNode(attrType);
 
-	  //set attribute to staff element / Atributo / set para o elemento pessoal
-	  Attr attr = doc. createAttribute ( "id" ) ;
-	  attr. setValue ( "1" ) ;
-	  staff. setAttributeNode ( attr ) ;
+	  Element workflow = doc. createElement ( "workflow" ) ;
+	  rootElement. appendChild ( workflow ) ;
 
-	  //shorten way / / Encurtar caminho
-	  //staff.setAttribute("id", "1"); / / Staff.setAttribute ("id", "1");
+          Attr attrWorkflowName = doc.createAttribute("name");
+          attrWorkflowName.setValue("w1");
+          workflow.setAttributeNode(attrWorkflowName);
 
-	  //firstname elements / / Elementos firstname
-	  Element firstname = doc. createElement ( "firstname" ) ;
-	  firstname. appendChild ( doc. createTextNode ( "yong" ) ) ;
-	  staff. appendChild ( firstname ) ;
+          Element parameters = doc.createElement("parameters");
+          rootElement.appendChild(parameters);
 
-	  //lastname elements / / Elementos apelido
-	  Element lastname = doc. createElement ( "lastname" ) ;
-	  lastname. appendChild ( doc. createTextNode ( "mook kim" ) ) ;
-	  staff. appendChild ( lastname ) ;
+          Element dataGroup = doc.createElement("dataGroup");
+          parameters.appendChild(dataGroup);
 
-	  //nickname elements / / Elementos apelido
-	  Element nickname = doc. createElement ( "nickname" ) ;
-	  nickname. appendChild ( doc. createTextNode ( "mkyong" ) ) ;
-	  staff. appendChild ( nickname ) ;
+          Attr attrDtGroupName = doc.createAttribute("name");
+          attrDtGroupName.setValue("userSearch");
+          dataGroup.setAttributeNode(attrDtGroupName);
 
-	  //salary elements / / Elementos de salário
-	  Element salary = doc. createElement ( "salary" ) ;
-	  salary. appendChild ( doc. createTextNode ( "100000" ) ) ;
-	  staff. appendChild ( salary ) ;
+          Element field = doc.createElement("field");
+          dataGroup.appendChild(field);
 
+          Attr attrFieldName = doc.createAttribute("name");
+          attrFieldName.setValue("fullName");
+          field.setAttributeNode(attrFieldName);
+
+          Attr attrFieldValue = doc.createAttribute("value");
+          attrFieldValue.setValue("Daniel Assis Alfenas");
+          field.setAttributeNode(attrFieldValue);
+
+	  
 	  //write the content into xml file / / Escreve o conteúdo em arquivo xml
 	  TransformerFactory transformerFactory = TransformerFactory. newInstance ( ) ;
 	  Transformer transformer = transformerFactory. newTransformer ( ) ;
