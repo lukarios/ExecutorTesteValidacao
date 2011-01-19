@@ -24,6 +24,25 @@ public class TestCase {
 
     public TestCase(List<Field> fields) {
         super();
+        DataGroup dtGroup = new DataGroup();
+        dtGroup.fields = fields;
+        dataGroups.add(dtGroup);
+    }
+
+    public String getTestCasePath() {
+        return testCasePath;
+    }
+
+    public void setTestCasePath(String testCasePath) {
+        this.testCasePath = testCasePath;
+    }
+
+    public String getWorkflowPath() {
+        return workflowPath;
+    }
+
+    public void setWorkflowPath(String workflowPath) {
+        this.workflowPath = workflowPath;
     }
 
     public void createFileXML() {
@@ -50,23 +69,30 @@ public class TestCase {
             Element parameters = doc.createElement("parameters");
             rootElement.appendChild(parameters);
 
-            Element dataGroup = doc.createElement("dataGroup");
-            parameters.appendChild(dataGroup);
+            for (DataGroup dtg : dataGroups) {
 
-            Attr attrDtGroupName = doc.createAttribute("name");
-            attrDtGroupName.setValue("userSearch");
-            dataGroup.setAttributeNode(attrDtGroupName);
+                Element dataGroup = doc.createElement("dataGroup");
+                parameters.appendChild(dataGroup);
 
-            Element field = doc.createElement("field");
-            dataGroup.appendChild(field);
+                Attr attrDtGroupName = doc.createAttribute("name");
+                attrDtGroupName.setValue(dtg.name);
+                dataGroup.setAttributeNode(attrDtGroupName);
 
-            Attr attrFieldName = doc.createAttribute("name");
-            attrFieldName.setValue("fullName");
-            field.setAttributeNode(attrFieldName);
+                //para cada Field dentro de um datagroup
+                for (Field field : dtg.fields) {
 
-            Attr attrFieldValue = doc.createAttribute("value");
-            attrFieldValue.setValue("Daniel Assis Alfenas");
-            field.setAttributeNode(attrFieldValue);
+                    Element fieldElement = doc.createElement("field");
+                    dataGroup.appendChild(fieldElement);
+
+                    Attr attrFieldName = doc.createAttribute("name");
+                    attrFieldName.setValue("fullName");
+                    fieldElement.setAttributeNode(attrFieldName);
+
+                    Attr attrFieldValue = doc.createAttribute("value");
+                    attrFieldValue.setValue("Daniel Assis Alfenas");
+                    fieldElement.setAttributeNode(attrFieldValue);
+                }
+            }
 
             //write the content into xml file / / Escreve o conteúdo em arquivo xml
             TransformerFactory transformerFactory = TransformerFactory.newInstance();

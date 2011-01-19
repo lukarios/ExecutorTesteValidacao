@@ -7,4 +7,4 @@ public class DataGroup {
     List<Field> fields;
     String name = "userSearch";
 
-}
+ }
