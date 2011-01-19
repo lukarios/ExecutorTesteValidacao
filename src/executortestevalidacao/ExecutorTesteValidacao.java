@@ -17,6 +17,8 @@ import executortestevalidacao.AtributesAndValues.Atribute;
 
 import br.org.fdte.dao.SuiteTesteValidacaoDAO;
 import br.org.fdte.dao.SuiteValCarTstValDAO;
+import br.org.fdte.testCase.Field;
+import br.org.fdte.testCase.TestCase;
 import java.util.List;
 
 public class ExecutorTesteValidacao extends Thread {
@@ -114,6 +116,19 @@ public class ExecutorTesteValidacao extends Thread {
            atv.setTermino(new Date(System.currentTimeMillis()));
            AtivacaoTesteValidacaoDAO.save(atv);       
        }
+       
+       //uma lista é criada com os dados de AtributesAndValues que geraram a ativação
+       List<Field> fields = new ArrayList<Field>();
+       for (Atribute atr : validDoc.getAtributeCollection()) {
+           Field field = new Field();
+           field.setName(atr.name);
+           if (atr.values.iterator().hasNext())
+            field.setValue(atr.values.iterator().next().value);
+           fields.add(field);
+       }
+
+       TestCase tstCase = new TestCase(fields,positiveToString(positiveTeste), currentExecution.getId(), activationId);
+       tstCase.createFileXML();
    } // persistActivation
 
    private TestResults executeNegativeTests(CaracterizacaoTesteValidacao t,
