@@ -1,5 +1,6 @@
 package br.org.fdte.testCase;
 
+import br.org.fdte.commons.exceptions.ExcFillData;
 import java.util.List;
 import java.io.File;
 import javax.xml.parsers.DocumentBuilder;
@@ -20,6 +21,7 @@ import br.org.fdte.dao.SuiteValCarTstValDAO;
 import br.org.fdte.persistence.ExecucaoTesteValidacao;
 import br.org.fdte.persistence.SuiteValidacaoTesteValidacao;
 import java.util.ArrayList;
+import javax.swing.JOptionPane;
 
 public class TestCase {
 
@@ -40,7 +42,7 @@ public class TestCase {
         this.idActivation = idActivation;
     }
 
-    public void createFileXML() {
+    public void createFileXML() throws ExcFillData {
         try {
 
             String sIdExecution = idExecution.toString();
@@ -104,6 +106,9 @@ public class TestCase {
                 }
             }
 
+             if (testCasePath == null)
+                throw new ExcFillData("Não existe um caminho para criar os casos de testes de entrada: ");
+
             //write the content into xml file / / Escreve o conteúdo em arquivo xml
             TransformerFactory transformerFactory = TransformerFactory.newInstance();
             Transformer transformer = transformerFactory.newTransformer();
@@ -115,8 +120,9 @@ public class TestCase {
 
         } catch (ParserConfigurationException pce) {
             pce.printStackTrace();
-        } catch (TransformerException tfe) {
-            tfe.printStackTrace();
+        } catch (TransformerException tfeTe) {
+            tfeTe.printStackTrace();
         }
+
     }
 }
