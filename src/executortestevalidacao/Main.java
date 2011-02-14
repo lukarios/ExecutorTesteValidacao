@@ -37,7 +37,8 @@ public class Main implements ExecutionCallback {
                ex.removePreviousExecution(execs);
             */
             // demonstrate execution of a validation suite
-            ex.executeValidationSuite("suite1", ExecutorTesteValidacao.ExecutionMode.GOLDEN_FILE, 1, null, false);
+            //ex.executeValidationSuite("suite1", ExecutorTesteValidacao.ExecutionMode.GOLDEN_FILE, 1, null, false);
+            ex.executeValidationSuite(ExecutorTesteValidacao.ExecutionMode.GOLDEN_FILE, 1, null, false);
         } catch (ExecuteValidationTestException evte) {
             System.out.println (">>> Exception " + evte.type);
             evte.printStackTrace();

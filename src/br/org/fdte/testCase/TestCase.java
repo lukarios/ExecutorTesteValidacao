@@ -104,7 +104,6 @@ public class TestCase {
             Long idSuite = execucao.getIdSuite().getId();
 
             List<SuiteValidacaoTesteValidacao> lstSuiteValPorCarctTstVal = SuiteValCarTstValDAO.getSuiteVal(idSuite);
-            SuiteValidacaoTesteValidacao svtv;
             for (SuiteValidacaoTesteValidacao suiteTestCaract : lstSuiteValPorCarctTstVal) {
                 if (suiteTestCaract.getCaracterizacaoTesteValidacao().getId().equals(idCaracterizacaoTestValidacao)) {
                     this.workflowPath = suiteTestCaract.getWorkflow();

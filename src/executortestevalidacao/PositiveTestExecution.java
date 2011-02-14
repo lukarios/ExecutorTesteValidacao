@@ -26,7 +26,7 @@ public class PositiveTestExecution extends ExecutorTesteValidacao {
    private CaracterizacaoTesteValidacao teste = null;
    private int repetitions = 1;
 
-   PositiveTestExecution(String suite,
+   /*PositiveTestExecution(String suite,
                          ExecutionMode mode,
                          int numOfThreads,
                          OutputStream logStream,
@@ -34,6 +34,21 @@ public class PositiveTestExecution extends ExecutorTesteValidacao {
                          ExecucaoTesteValidacao currentExecution,
                          long activationId) {
        this.suite = suite;
+       this.mode = mode;
+       this.numOfThreads = numOfThreads;
+       this.logStream = logStream;
+       this.abort = abort;
+       this.currentExecution = currentExecution;
+       this.activationId = activationId;
+   } // constructor*/
+
+   PositiveTestExecution(ExecutionMode mode,
+                         int numOfThreads,
+                         OutputStream logStream,
+                         boolean abort,
+                         ExecucaoTesteValidacao currentExecution,
+                         long activationId) {
+
        this.mode = mode;
        this.numOfThreads = numOfThreads;
        this.logStream = logStream;

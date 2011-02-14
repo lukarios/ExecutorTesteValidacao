@@ -17,7 +17,7 @@ public class TestModeExecution extends ExecutorTesteValidacao {
    private long activationId = 0;
    private TestResults results = null;
 
-   TestModeExecution(String suite,
+/*lrb 14/02/2011   TestModeExecution(String suite,
                          ExecutionMode mode,
                          int numOfThreads,
                          OutputStream logStream,
@@ -25,6 +25,20 @@ public class TestModeExecution extends ExecutorTesteValidacao {
                          ExecucaoTesteValidacao currentExecution,
                          long activationId) {
        this.suite = suite;
+       this.mode = mode;
+       this.numOfThreads = numOfThreads;
+       this.logStream = logStream;
+       this.abort = abort;
+       this.currentExecution = currentExecution;
+       this.activationId = activationId;
+   } // constructor */
+
+      TestModeExecution( ExecutionMode mode,
+                         int numOfThreads,
+                         OutputStream logStream,
+                         boolean abort,
+                         ExecucaoTesteValidacao currentExecution,
+                         long activationId) {
        this.mode = mode;
        this.numOfThreads = numOfThreads;
        this.logStream = logStream;
