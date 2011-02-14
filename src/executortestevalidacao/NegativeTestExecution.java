@@ -5,6 +5,7 @@ package executortestevalidacao;
 import java.util.Collection;
 
 import br.org.fdte.persistence.*;
+import br.org.fdte.testCase.TestCase;
 
 import java.io.OutputStream;
 
@@ -51,6 +52,7 @@ class NegativeTestExecution extends ExecutorTesteValidacao {
            fireEvent(ExecutionCallback.ExecutionEventType.NO_NEGATIVE_TESTS_TO_EXECUTE, "Test", teste.getId(), "");
            return results;
        }
+
        AtributesAndValues atr = new AtributesAndValues(teste.getDocumentoEntrada());
        //************************************************************************
        // TODO : do we need to add repetitions on negative tests ??
@@ -69,6 +71,7 @@ class NegativeTestExecution extends ExecutorTesteValidacao {
            while ( null != ( v = it.next()) ) {
                validDoc.set(t, v);
                long activationTime = System.currentTimeMillis();
+               tstCase.setType(positiveToString(false));
                RetrievalResult retRes = executeActivation(teste, validDoc, activationId);
                updateTestResults(retRes.result);
                if (needAbort(retRes.result)) {

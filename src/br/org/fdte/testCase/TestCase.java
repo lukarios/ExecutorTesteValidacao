@@ -42,6 +42,58 @@ public class TestCase {
         this.idActivation = idActivation;
     }
 
+    public TestCase() {
+        super(); 
+    }
+
+    public void setFields(List<Field> fields) {
+        DataGroup dtGroup = new DataGroup();
+        dtGroup.fields = fields;
+        dataGroups.add(dtGroup);
+    }
+
+    public Long getIdActivation() {
+        return idActivation;
+    }
+
+    public void setIdActivation(Long idActivation) {
+        this.idActivation = idActivation;
+    }
+
+    public Long getIdExecution() {
+        return idExecution;
+    }
+
+    public void setIdExecution(Long idExecution) {
+        this.idExecution = idExecution;
+    }
+
+    public String getTestCasePath() {
+        return testCasePath;
+    }
+
+    public void setTestCasePath(String testCasePath) {
+        this.testCasePath = testCasePath;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
+
+    public String getWorkflowPath() {
+        return workflowPath;
+    }
+
+    public void setWorkflowPath(String workflowPath) {
+        this.workflowPath = workflowPath;
+    }
+    
+
+
     public void createFileXML() throws ExcFillData {
         try {
 

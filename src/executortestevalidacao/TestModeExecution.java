@@ -43,6 +43,7 @@ public class TestModeExecution extends ExecutorTesteValidacao {
            //System.out.println("Testing with " + inputDoc.toXmlString());
            AtributesAndValues expectedDoc = getOutputDoc(goldenActivation);
            boolean testType = getTestType(goldenActivation);
+           tstCase.setType(positiveToString(testType));
            RetrievalResult result = executeActivation(teste, inputDoc, activationId);
            ExecutionResult res = null;
            if (result.result.equals(ExecutionResult.TIMEOUT)) {
@@ -53,7 +54,7 @@ public class TestModeExecution extends ExecutorTesteValidacao {
            updateTestResults(res, testType);
            if (needAbort(res)) {
               return results;
-           }
+           }           
            persistActivation(teste, inputDoc, result.document, activationId, testType, res, activationTime);
            activationId++;
        }

@@ -21,6 +21,7 @@ import executortestevalidacao.AtributesAndValues.Atribute;
 import br.org.fdte.testCase.Field;
 import br.org.fdte.testCase.TestCase;
 import br.org.servicos.SuiteServico;
+import java.rmi.activation.ActivationID;
 import java.util.List;
 import javax.swing.JOptionPane;
 
@@ -49,10 +50,13 @@ public class ExecutorTesteValidacao extends Thread {
     private TestModeExecution testModeExecution = null;
     private String runSuite;
     private ExecutionMode runMode;
+    protected TestCase tstCase = new TestCase();
+
+
 
     public void setRunParameters(String suite, ExecutionMode mode) {
         runSuite = suite;
-        runMode = mode;
+        runMode = mode;        
     }
 
     @Override
@@ -78,15 +82,39 @@ public class ExecutorTesteValidacao extends Thread {
     private ExecutionResult submit(CaracterizacaoTesteValidacao teste,
             AtributesAndValues doc) {
         ExecutionResult res = ExecutionResult.SUCCESS;
+
+         //lrb 11/02/2011
+        //uma lista é criada com os dados de AtributesAndValues que geraram a ativação
+        List<Field> fields = new ArrayList<Field>();
+        for (Atribute atr : doc.getAtributeCollection()) {
+            Field field = new Field();
+            field.setName(atr.name);
+            if (atr.values.iterator().hasNext()) {
+                field.setValue(atr.values.iterator().next().value);
+            }
+            fields.add(field);
+        }
+
+        tstCase.setFields(fields);
+
+        try {
+            tstCase.createFileXML();
+        } catch (ExcFillData ex) {
+            JOptionPane.showMessageDialog(JOptionPane.getRootFrame(),ex.getMessage());
+        }
+
         return res;
     } // submit
 
     protected RetrievalResult executeActivation(CaracterizacaoTesteValidacao teste,
             AtributesAndValues inputDoc,
             long activationId) {
+
         fireEvent(ExecutionCallback.ExecutionEventType.ATIVATION_STARTED, "Activation", activationId, "");
         ExecutionResult res = ExecutionResult.SUCCESS;
         inputDoc.dump("Id" + activationId);
+        tstCase.setIdActivation(activationId);
+        tstCase.setIdExecution(currentExecution.getId());
         res = submit(teste, inputDoc);
         RetrievalResult retRes = retrieve(teste);
         res = retRes.result;
@@ -122,8 +150,9 @@ public class ExecutorTesteValidacao extends Thread {
             AtivacaoTesteValidacaoDAO.save(atv);
         }
 
+     //lrb 11/02/2011
         //uma lista é criada com os dados de AtributesAndValues que geraram a ativação
-        List<Field> fields = new ArrayList<Field>();
+        /*List<Field> fields = new ArrayList<Field>();
         for (Atribute atr : validDoc.getAtributeCollection()) {
             Field field = new Field();
             field.setName(atr.name);
@@ -133,12 +162,13 @@ public class ExecutorTesteValidacao extends Thread {
             fields.add(field);
         }
 
+      
         TestCase tstCase = new TestCase(fields, positiveToString(positiveTeste), currentExecution.getId(), activationId);
         try {
             tstCase.createFileXML();
         } catch (ExcFillData ex) {
             JOptionPane.showMessageDialog(JOptionPane.getRootFrame(),ex.getMessage());
-        }
+        }*/
 
     } // persistActivation
 
@@ -154,6 +184,7 @@ public class ExecutorTesteValidacao extends Thread {
         negativeTestExecution.setExecutionCallback(executionCallback);
         TestResults res = negativeTestExecution.executeNegativeTests(t, especificos);
         return res;
+        
     } // executeNegativeTests
 
     private TestResults executePositiveTests(CaracterizacaoTesteValidacao t,

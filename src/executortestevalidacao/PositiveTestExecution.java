@@ -83,8 +83,9 @@ public class PositiveTestExecution extends ExecutorTesteValidacao {
 
    private RetrievalResult process(AtributesAndValues doc) throws Exception {
        long activationTime = System.currentTimeMillis();
+       tstCase.setType(positiveToString(true));
        RetrievalResult retRes = executeActivation(teste, doc, activationId);
-       updateTestResults(retRes.result);
+       updateTestResults(retRes.result);       
        persistActivation(teste, doc, retRes.document, activationId, true, retRes.result, activationTime);
        activationId++;
        return retRes;
