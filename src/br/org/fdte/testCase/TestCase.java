@@ -31,6 +31,11 @@ public class TestCase {
     List<DataGroup> dataGroups = new ArrayList<DataGroup>();
     Long idExecution;
     Long idActivation;
+    String fileNameXML;
+
+    public String getFileNameXML() {
+        return fileNameXML;
+    }
 
     public TestCase(List<Field> fields, String type, Long idExecution, Long idActivation) {
         super();
@@ -52,45 +57,45 @@ public class TestCase {
         dataGroups.add(dtGroup);
     }
 
-    public Long getIdActivation() {
+    /*public Long getIdActivation() {
         return idActivation;
-    }
+    }*/
 
     public void setIdActivation(Long idActivation) {
         this.idActivation = idActivation;
     }
 
-    public Long getIdExecution() {
+   /* public Long getIdExecution() {
         return idExecution;
-    }
+    }*/
 
     public void setIdExecution(Long idExecution) {
         this.idExecution = idExecution;
     }
 
-    public String getTestCasePath() {
+    /*public String getTestCasePath() {
         return testCasePath;
     }
 
     public void setTestCasePath(String testCasePath) {
         this.testCasePath = testCasePath;
-    }
+    }*/
 
-    public String getType() {
+   /* public String getType() {
         return type;
-    }
+    }*/
 
     public void setType(String type) {
         this.type = type;
     }
 
-    public String getWorkflowPath() {
+    /*public String getWorkflowPath() {
         return workflowPath;
     }
 
     public void setWorkflowPath(String workflowPath) {
         this.workflowPath = workflowPath;
-    }
+    }*/
     
 
 
@@ -108,6 +113,7 @@ public class TestCase {
                 if (suiteTestCaract.getCaracterizacaoTesteValidacao().getId().equals(idCaracterizacaoTestValidacao)) {
                     this.workflowPath = suiteTestCaract.getWorkflow();
                     this.testCasePath = suiteTestCaract.getTestCase();
+                    break;
                 }
             }
 
@@ -164,9 +170,9 @@ public class TestCase {
             TransformerFactory transformerFactory = TransformerFactory.newInstance();
             Transformer transformer = transformerFactory.newTransformer();
             DOMSource source = new DOMSource(doc);
-            String fileName = testCasePath + "\\Exec" + idExecution + "_" + idActivation.toString() + ".xml";
+            fileNameXML = testCasePath + "\\Exec" + idExecution + "_" + idActivation.toString() + ".xml";
             //StreamResult result = new StreamResult(new File("C:\\Users\\FDTE-Luciana\\Documents\\LucianaRios\\FDTE\\ testing.xml"));
-            StreamResult result = new StreamResult(new File(fileName));
+            StreamResult result = new StreamResult(new File(fileNameXML));
             transformer.transform(source, result);
 
         } catch (ParserConfigurationException pce) {

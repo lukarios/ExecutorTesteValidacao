@@ -19,8 +19,12 @@ import executortestevalidacao.AtributesAndValues.Atribute;
 import br.org.fdte.testCase.Field;
 import br.org.fdte.testCase.TestCase;
 import br.org.servicos.SuiteServico;
+import java.io.IOException;
 import java.util.List;
 import javax.swing.JOptionPane;
+import org.cabreva.edt.EDTIterativeManager;
+import org.jdom.JDOMException;
+
 
 public class ExecutorTesteValidacao extends Thread {
 
@@ -33,6 +37,7 @@ public class ExecutorTesteValidacao extends Thread {
 
         SUCCESS, FAILURE, TIMEOUT
     };
+
     protected ExecutionCallback executionCallback;
     protected ExecucaoTesteValidacao currentExecution;
     private int idGroup = -1;
@@ -50,6 +55,7 @@ public class ExecutorTesteValidacao extends Thread {
     private String runSuite;
     private ExecutionMode runMode;
     protected TestCase tstCase = new TestCase();
+    protected EDTIterativeManager edtExec;
 
     public void setRunParameters(String suite, ExecutionMode mode) {
         runSuite = suite;
@@ -98,11 +104,18 @@ public class ExecutorTesteValidacao extends Thread {
         try {
             if (currentExecution != null) {
                 tstCase.createFileXML();
+                edtExec.run(tstCase.getFileNameXML());
             }
         } catch (ExcFillData ex) {
             JOptionPane.showMessageDialog(JOptionPane.getRootFrame(), ex.getMessage());
         }
-
+        catch(IOException ex) {
+            JOptionPane.showMessageDialog(JOptionPane.getRootFrame(), ex.getMessage());
+        }
+        catch(JDOMException ex) {
+            JOptionPane.showMessageDialog(JOptionPane.getRootFrame(), ex.getMessage());
+        }
+       
         return res;
     } // submit
 
@@ -205,6 +218,7 @@ public class ExecutorTesteValidacao extends Thread {
 
         if ((mode.equals(ExecutionMode.GOLDEN_FILE)) || (mode.equals(ExecutionMode.SYSTEM_TEST))) {
             persistTestExecution(t);
+            createEdtExec();
         }
 
         TestResults finalResults = new TestResults();
@@ -304,6 +318,24 @@ public class ExecutorTesteValidacao extends Thread {
         etv.setModoAtivacao(modeToString(mode));
         etv.setRelatorio("".getBytes()); // workaround : field must not be null
         ExecucaoTesteValidacaoDAO.save(etv);
+    }
+
+    //15/02/2011 lrb
+    //criar os executores do edt
+    private void createEdtExec() {
+        List<SuiteValidacaoTesteValidacao> lst = suiteServico.getAllSuiteValTesteVal(suite.getNome());
+        for (SuiteValidacaoTesteValidacao svtv : lst ) {
+            if (svtv.getCaracterizacaoTesteValidacao().getId().equals(currentExecution.getIdCaracterizacaoTesteValidacao().getId())) {
+                edtExec = new EDTIterativeManager(svtv.getWorkflow(), svtv.getResult());
+                try {
+                edtExec.init();
+                }
+                catch(Exception ex) {
+                    System.out.println(ex.getMessage());
+                }
+                break;
+            }
+        }
     }
 
     protected void fireEvent(ExecutionCallback.ExecutionEventType type, String objectType, long id, String msg) {
