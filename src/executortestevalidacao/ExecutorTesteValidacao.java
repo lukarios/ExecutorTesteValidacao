@@ -25,7 +25,6 @@ import javax.swing.JOptionPane;
 import org.cabreva.edt.EDTIterativeManager;
 import org.jdom.JDOMException;
 
-
 public class ExecutorTesteValidacao extends Thread {
 
     public enum ExecutionMode {
@@ -37,7 +36,6 @@ public class ExecutorTesteValidacao extends Thread {
 
         SUCCESS, FAILURE, TIMEOUT
     };
-
     protected ExecutionCallback executionCallback;
     protected ExecucaoTesteValidacao currentExecution;
     private int idGroup = -1;
@@ -104,18 +102,16 @@ public class ExecutorTesteValidacao extends Thread {
         try {
             if (currentExecution != null) {
                 tstCase.createFileXML();
-                edtExec.run(tstCase.getFileNameXML());
+                this.edtExec.run(tstCase.getFileNameXML());
             }
         } catch (ExcFillData ex) {
             JOptionPane.showMessageDialog(JOptionPane.getRootFrame(), ex.getMessage());
-        }
-        catch(IOException ex) {
+        } catch (IOException ex) {
+            JOptionPane.showMessageDialog(JOptionPane.getRootFrame(), ex.getMessage());
+        } catch (JDOMException ex) {
             JOptionPane.showMessageDialog(JOptionPane.getRootFrame(), ex.getMessage());
         }
-        catch(JDOMException ex) {
-            JOptionPane.showMessageDialog(JOptionPane.getRootFrame(), ex.getMessage());
-        }
-       
+
         return res;
     } // submit
 
@@ -175,7 +171,8 @@ public class ExecutorTesteValidacao extends Thread {
                 logStream,
                 abort,
                 currentExecution,
-                0);
+                0,
+                edtExec);
         negativeTestExecution.setExecutionCallback(executionCallback);
         TestResults res = negativeTestExecution.executeNegativeTests(t, especificos);
         return res;
@@ -191,7 +188,8 @@ public class ExecutorTesteValidacao extends Thread {
                 logStream,
                 abort,
                 currentExecution,
-                initialId);
+                initialId,
+                this.edtExec);
         positiveTestExecution.setExecutionCallback(executionCallback);
         TestResults res = positiveTestExecution.executePositiveTests(t, especificos);
         return res;
@@ -206,7 +204,8 @@ public class ExecutorTesteValidacao extends Thread {
                 logStream,
                 abort,
                 currentExecution,
-                initialId);
+                initialId,
+                edtExec);
         testModeExecution.setExecutionCallback(executionCallback);
         TestResults res = testModeExecution.executeTests(t, s);
         return res;
@@ -216,27 +215,36 @@ public class ExecutorTesteValidacao extends Thread {
         fireEvent(ExecutionCallback.ExecutionEventType.TEST_STARTED, "Test", t.getId(), t.getNome());
         ExecutionResult res = ExecutionResult.SUCCESS;
 
-        if ((mode.equals(ExecutionMode.GOLDEN_FILE)) || (mode.equals(ExecutionMode.SYSTEM_TEST))) {
-            persistTestExecution(t);
-            createEdtExec();
+        try {
+            if ((mode.equals(ExecutionMode.GOLDEN_FILE)) || (mode.equals(ExecutionMode.SYSTEM_TEST))) {                
+                persistTestExecution(t);
+                createEdtExec();
+
+            }
+
+            TestResults finalResults = new TestResults();
+            TestResults results = null;
+
+            if ((mode == ExecutionMode.GOLDEN_FILE) || (mode == ExecutionMode.SYSTEM_EXERCIZE)) {
+                Collection<Especificos> especificos = t.getEspecificosCollection();
+                results = executeNegativeTests(t, especificos);
+                finalResults.accumulate(results);
+                results = executePositiveTests(t, especificos);
+                finalResults.accumulate(results);
+            } else if (mode == ExecutionMode.SYSTEM_TEST) {
+                finalResults = executeInTestMode(t, suite);
+            }
+            if ((mode.equals(ExecutionMode.GOLDEN_FILE)) || (mode.equals(ExecutionMode.SYSTEM_TEST))) {
+                persistTestExecutionResults(finalResults);
+            }
+        } catch (Exception ex) {
+            res = ExecutionResult.FAILURE;
+            return res;
+        } finally {
+            fireEvent(ExecutionCallback.ExecutionEventType.TEST_ENDED, "Test", t.getId(), t.getNome());
         }
 
-        TestResults finalResults = new TestResults();
-        TestResults results = null;
 
-        if ((mode == ExecutionMode.GOLDEN_FILE) || (mode == ExecutionMode.SYSTEM_EXERCIZE)) {
-            Collection<Especificos> especificos = t.getEspecificosCollection();
-            results = executeNegativeTests(t, especificos);
-            finalResults.accumulate(results);
-            results = executePositiveTests(t, especificos);
-            finalResults.accumulate(results);
-        } else if (mode == ExecutionMode.SYSTEM_TEST) {
-            finalResults = executeInTestMode(t, suite);
-        }
-        if ((mode.equals(ExecutionMode.GOLDEN_FILE)) || (mode.equals(ExecutionMode.SYSTEM_TEST))) {
-            persistTestExecutionResults(finalResults);
-        }
-        fireEvent(ExecutionCallback.ExecutionEventType.TEST_ENDED, "Test", t.getId(), t.getNome());
         return res;
     } // executeValidationTest
 
@@ -244,7 +252,7 @@ public class ExecutorTesteValidacao extends Thread {
             ExecutionMode mode,
             int numOfThreads,
             OutputStream logStream,
-            boolean abort) throws ExecuteValidationTestException {
+            boolean abort) throws Exception {
         //lrb 14/02/2011 this.suite = suite;
         this.suiteServico = new SuiteServico();
         this.suite = this.suiteServico.getByName(runSuite);
@@ -253,52 +261,43 @@ public class ExecutorTesteValidacao extends Thread {
         this.logStream = logStream;
         this.abort = abort;
 
-        try {
-            // SuiteTesteValidacao stv = SuiteTesteValidacaoDAO.getSuiteTesteValidacao(suite);
-            //lrb 11/02/2011
-            //SuiteServico suiteServico = new SuiteServico();
-            //SuiteTesteValidacao stv = suiteServico.getByName(suite);
-            if (this.suite == null) {
-                throw new ExecuteValidationTestException(ExecuteValidationTestException.ExceptionType.SUITE_NOT_FOUND, "Nome da suite: " + suite);
-            }
-            fireEvent(ExecutionCallback.ExecutionEventType.SUITE_STARTED, "Suite", suite.getId(), "Suite " + suite + "Mode " + mode + " Abort " + abort + " Threads " + numOfThreads);
-            //Collection<SuiteValidacaoTesteValidacao> suitesCaractTestes = SuiteValCarTstValDAO.getSuiteVal(stv.getId());
-            //lrb 11/02/2011
-            Collection<SuiteValidacaoTesteValidacao> suitesCaractTestes = suiteServico.getAllSuiteValTesteVal(suite.getNome());
-            Collection<CaracterizacaoTesteValidacao> tests = new ArrayList();
-            for (SuiteValidacaoTesteValidacao svtv_instance : suitesCaractTestes) {
-                tests.add(svtv_instance.getCaracterizacaoTesteValidacao());
-            }
 
-            /*lrb 11/02/2011
-            if (mode.equals(ExecutionMode.GOLDEN_FILE)) {
-            removePrevious(tests);
-            }*/
-
-            ExecutionResult res = ExecutionResult.SUCCESS;
-            idGroup = ExecucaoTesteValidacaoDAO.getMaxIdGrupoExecPerSuite(suite);
-            idGroup++;
-            for (CaracterizacaoTesteValidacao t : tests) {
-                //res = executeValidationTest(this.suite, t);
-                res = executeValidationTest(t);
-                if (needAbort(res)) {
-                    fireEvent(ExecutionCallback.ExecutionEventType.SUITE_ABORTED, "Suite", this.suite.getId(), "Suite " + suite);
-                    break;
-                }
-            } // for each test within suite
-            fireEvent(ExecutionCallback.ExecutionEventType.SUITE_ENDED, "Suite", this.suite.getId(), "Suite " + suite);
-            idGroup = -1;
-            return res;
-        } catch (PersistenceException pe) {
-            pe.printStackTrace();
-            throw new ExecuteValidationTestException(ExecuteValidationTestException.ExceptionType.DATABASE_ACCESS_ERROR,
-                    pe.toString());
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw new ExecuteValidationTestException(ExecuteValidationTestException.ExceptionType.GENERIC_EXCEPTION,
-                    e.toString());
-
+        // SuiteTesteValidacao stv = SuiteTesteValidacaoDAO.getSuiteTesteValidacao(suite);
+        //lrb 11/02/2011
+        //SuiteServico suiteServico = new SuiteServico();
+        //SuiteTesteValidacao stv = suiteServico.getByName(suite);
+        if (this.suite == null) {
+            throw new ExecuteValidationTestException(ExecuteValidationTestException.ExceptionType.SUITE_NOT_FOUND, "Nome da suite: " + suite);
         }
+        fireEvent(ExecutionCallback.ExecutionEventType.SUITE_STARTED, "Suite", suite.getId(), "Suite " + suite + "Mode " + mode + " Abort " + abort + " Threads " + numOfThreads);
+        //Collection<SuiteValidacaoTesteValidacao> suitesCaractTestes = SuiteValCarTstValDAO.getSuiteVal(stv.getId());
+        //lrb 11/02/2011
+        Collection<SuiteValidacaoTesteValidacao> suitesCaractTestes = suiteServico.getAllSuiteValTesteVal(suite.getNome());
+        Collection<CaracterizacaoTesteValidacao> tests = new ArrayList();
+        for (SuiteValidacaoTesteValidacao svtv_instance : suitesCaractTestes) {
+            tests.add(svtv_instance.getCaracterizacaoTesteValidacao());
+        }
+
+        /*lrb 11/02/2011
+        if (mode.equals(ExecutionMode.GOLDEN_FILE)) {
+        removePrevious(tests);
+        }*/
+
+        ExecutionResult res = ExecutionResult.SUCCESS;
+        idGroup = ExecucaoTesteValidacaoDAO.getMaxIdGrupoExecPerSuite(suite);
+        idGroup++;
+        for (CaracterizacaoTesteValidacao t : tests) {
+            //res = executeValidationTest(this.suite, t);
+            res = executeValidationTest(t);
+            if (needAbort(res)) {
+                fireEvent(ExecutionCallback.ExecutionEventType.SUITE_ABORTED, "Suite", this.suite.getId(), "Suite " + suite);
+                break;
+            }
+        } // for each test within suite
+        fireEvent(ExecutionCallback.ExecutionEventType.SUITE_ENDED, "Suite", this.suite.getId(), "Suite " + suite);
+        idGroup = -1;
+        return res;
+
     }
 
     private void persistTestExecutionResults(TestResults results) throws Exception {
@@ -322,16 +321,17 @@ public class ExecutorTesteValidacao extends Thread {
 
     //15/02/2011 lrb
     //criar os executores do edt
-    private void createEdtExec() {
+    private void createEdtExec() throws Exception {
         List<SuiteValidacaoTesteValidacao> lst = suiteServico.getAllSuiteValTesteVal(suite.getNome());
-        for (SuiteValidacaoTesteValidacao svtv : lst ) {
+        for (SuiteValidacaoTesteValidacao svtv : lst) {
             if (svtv.getCaracterizacaoTesteValidacao().getId().equals(currentExecution.getIdCaracterizacaoTesteValidacao().getId())) {
-                edtExec = new EDTIterativeManager(svtv.getWorkflow(), svtv.getResult());
+
                 try {
-                edtExec.init();
-                }
-                catch(Exception ex) {
+                    this.edtExec = new EDTIterativeManager(svtv.getWorkflow(), svtv.getResult());
+                    this.edtExec.init();
+                } catch (Exception ex) {
                     System.out.println(ex.getMessage());
+                    throw ex;
                 }
                 break;
             }

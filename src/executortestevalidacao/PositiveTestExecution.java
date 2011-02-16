@@ -15,6 +15,7 @@ import executortestevalidacao.ExecutorTesteValidacao.RetrievalResult;
 import executortestevalidacao.AtributesAndValues.Atribute;
 import executortestevalidacao.AtributesAndValues.Value;
 import executortestevalidacao.AtributesAndValues.AtributeIterator;
+import org.cabreva.edt.EDTIterativeManager;
 
 public class PositiveTestExecution extends ExecutorTesteValidacao {
 
@@ -47,7 +48,8 @@ public class PositiveTestExecution extends ExecutorTesteValidacao {
                          OutputStream logStream,
                          boolean abort,
                          ExecucaoTesteValidacao currentExecution,
-                         long activationId) {
+                         long activationId,
+                         EDTIterativeManager edtExec) {
 
        this.mode = mode;
        this.numOfThreads = numOfThreads;
@@ -55,6 +57,7 @@ public class PositiveTestExecution extends ExecutorTesteValidacao {
        this.abort = abort;
        this.currentExecution = currentExecution;
        this.activationId = activationId;
+       this.edtExec = edtExec;
    } // constructor
 
    protected TestResults executePositiveTests(CaracterizacaoTesteValidacao teste,

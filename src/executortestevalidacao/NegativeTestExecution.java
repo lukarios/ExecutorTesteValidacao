@@ -13,6 +13,7 @@ import executortestevalidacao.ExecutorTesteValidacao.RetrievalResult;
 import executortestevalidacao.AtributesAndValues.Atribute;
 import executortestevalidacao.AtributesAndValues.Value;
 import executortestevalidacao.AtributesAndValues.AtributeIterator;
+import org.cabreva.edt.EDTIterativeManager;
 
 /* Estrategia : utilizar um documento de entrada valido e substituir todos
  * os valore negativos de todos os atributos, um a um
@@ -38,7 +39,8 @@ class NegativeTestExecution extends ExecutorTesteValidacao {
             OutputStream logStream,
             boolean abort,
             ExecucaoTesteValidacao currentExecution,
-            long activationId) {
+            long activationId,
+            EDTIterativeManager edtExec) {
         //lrb 14/02/2011 this.suite = suite;
         //this.suite = suite;
         this.mode = mode;
@@ -47,6 +49,7 @@ class NegativeTestExecution extends ExecutorTesteValidacao {
         this.abort = abort;
         this.currentExecution = currentExecution;
         this.activationId = activationId;
+        this.edtExec = edtExec;
     } // constructor
 
     protected TestResults executeNegativeTests(CaracterizacaoTesteValidacao teste,

@@ -10,6 +10,7 @@ import java.io.OutputStream;
 import executortestevalidacao.ExecutorTesteValidacao.ExecutionMode;
 import executortestevalidacao.ExecutorTesteValidacao.ExecutionResult;
 import executortestevalidacao.ExecutorTesteValidacao.RetrievalResult;
+import org.cabreva.edt.EDTIterativeManager;
 
 
 public class TestModeExecution extends ExecutorTesteValidacao {
@@ -38,13 +39,15 @@ public class TestModeExecution extends ExecutorTesteValidacao {
                          OutputStream logStream,
                          boolean abort,
                          ExecucaoTesteValidacao currentExecution,
-                         long activationId) {
+                         long activationId,
+                         EDTIterativeManager edtExec) {
        this.mode = mode;
        this.numOfThreads = numOfThreads;
        this.logStream = logStream;
        this.abort = abort;
        this.currentExecution = currentExecution;
        this.activationId = activationId;
+       this.edtExec = edtExec;
    } // constructor
 
    protected TestResults executeTests(CaracterizacaoTesteValidacao teste, SuiteTesteValidacao suiteTst) throws Exception {
