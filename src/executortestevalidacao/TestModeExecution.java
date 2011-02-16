@@ -4,6 +4,7 @@ import br.org.fdte.dao.AtivacaoTesteValidacaoDAO;
 import java.util.Collection;
 
 import br.org.fdte.persistence.*;
+import br.org.fdte.testCase.TestCase;
 
 import java.io.OutputStream;
 
@@ -40,7 +41,8 @@ public class TestModeExecution extends ExecutorTesteValidacao {
                          boolean abort,
                          ExecucaoTesteValidacao currentExecution,
                          long activationId,
-                         EDTIterativeManager edtExec) {
+                         EDTIterativeManager edtExec,
+                         TestCase tstCase) {
        this.mode = mode;
        this.numOfThreads = numOfThreads;
        this.logStream = logStream;
@@ -48,6 +50,7 @@ public class TestModeExecution extends ExecutorTesteValidacao {
        this.currentExecution = currentExecution;
        this.activationId = activationId;
        this.edtExec = edtExec;
+       this.tstCase = tstCase;
    } // constructor
 
    protected TestResults executeTests(CaracterizacaoTesteValidacao teste, SuiteTesteValidacao suiteTst) throws Exception {

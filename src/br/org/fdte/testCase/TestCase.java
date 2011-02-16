@@ -16,12 +16,8 @@ import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-import br.org.fdte.dao.ExecucaoTesteValidacaoDAO;
-import br.org.fdte.dao.SuiteValCarTstValDAO;
 import br.org.fdte.persistence.ExecucaoTesteValidacao;
-import br.org.fdte.persistence.SuiteValidacaoTesteValidacao;
 import java.util.ArrayList;
-import javax.swing.JOptionPane;
 
 public class TestCase {
 
@@ -29,7 +25,7 @@ public class TestCase {
     String workflowPath;
     String testCasePath;
     List<DataGroup> dataGroups = new ArrayList<DataGroup>();
-    Long idExecution;
+    ExecucaoTesteValidacao execucao;
     Long idActivation;
     String fileNameXML;
 
@@ -37,85 +33,27 @@ public class TestCase {
         return fileNameXML;
     }
 
-    public TestCase(List<Field> fields, String type, Long idExecution, Long idActivation) {
-        super();
-        this.type = type;
-        DataGroup dtGroup = new DataGroup();
-        dtGroup.fields = fields;
-        dataGroups.add(dtGroup);
-        this.idExecution = idExecution;
-        this.idActivation = idActivation;
-    }
-
-    public TestCase() {
-        super(); 
-    }
-
     public void setFields(List<Field> fields) {
         DataGroup dtGroup = new DataGroup();
         dtGroup.fields = fields;
+        dataGroups.clear();
         dataGroups.add(dtGroup);
     }
-
-    /*public Long getIdActivation() {
-        return idActivation;
-    }*/
 
     public void setIdActivation(Long idActivation) {
         this.idActivation = idActivation;
     }
 
-   /* public Long getIdExecution() {
-        return idExecution;
-    }*/
-
-    public void setIdExecution(Long idExecution) {
-        this.idExecution = idExecution;
+    public void setExecution(ExecucaoTesteValidacao execucao) {
+        this.execucao = execucao;
     }
-
-    /*public String getTestCasePath() {
-        return testCasePath;
-    }
-
-    public void setTestCasePath(String testCasePath) {
-        this.testCasePath = testCasePath;
-    }*/
-
-   /* public String getType() {
-        return type;
-    }*/
 
     public void setType(String type) {
         this.type = type;
     }
 
-    /*public String getWorkflowPath() {
-        return workflowPath;
-    }
-
-    public void setWorkflowPath(String workflowPath) {
-        this.workflowPath = workflowPath;
-    }*/
-    
-
-
     public void createFileXML() throws ExcFillData {
         try {
-
-            String sIdExecution = idExecution.toString();
-            ExecucaoTesteValidacao execucao = ExecucaoTesteValidacaoDAO.getExecucaoTesteValidacao(Integer.parseInt(sIdExecution));
-
-            Long idCaracterizacaoTestValidacao = execucao.getIdCaracterizacaoTesteValidacao().getId();
-            Long idSuite = execucao.getIdSuite().getId();
-
-            List<SuiteValidacaoTesteValidacao> lstSuiteValPorCarctTstVal = SuiteValCarTstValDAO.getSuiteVal(idSuite);
-            for (SuiteValidacaoTesteValidacao suiteTestCaract : lstSuiteValPorCarctTstVal) {
-                if (suiteTestCaract.getCaracterizacaoTesteValidacao().getId().equals(idCaracterizacaoTestValidacao)) {
-                    this.workflowPath = suiteTestCaract.getWorkflow();
-                    this.testCasePath = suiteTestCaract.getTestCase();
-                    break;
-                }
-            }
 
             DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
             DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
@@ -163,15 +101,15 @@ public class TestCase {
                 }
             }
 
-             if (testCasePath == null)
+            if (testCasePath == null) {
                 throw new ExcFillData("Não existe um caminho para criar os casos de testes de entrada: ");
+            }
 
             //write the content into xml file / / Escreve o conteúdo em arquivo xml
             TransformerFactory transformerFactory = TransformerFactory.newInstance();
             Transformer transformer = transformerFactory.newTransformer();
             DOMSource source = new DOMSource(doc);
-            fileNameXML = testCasePath + "\\Exec" + idExecution + "_" + idActivation.toString() + ".xml";
-            //StreamResult result = new StreamResult(new File("C:\\Users\\FDTE-Luciana\\Documents\\LucianaRios\\FDTE\\ testing.xml"));
+            fileNameXML = testCasePath + "\\Exec" + execucao.getId().toString() + "_" + idActivation.toString() + ".xml";
             StreamResult result = new StreamResult(new File(fileNameXML));
             transformer.transform(source, result);
 
@@ -182,4 +120,14 @@ public class TestCase {
         }
 
     }
+
+    public void setTestCasePath(String testCasePath) {
+        this.testCasePath = testCasePath;
+    }
+
+    public void setWorkflowPath(String workflowPath) {
+        this.workflowPath = workflowPath;
+    }
+
+
 }

@@ -3,6 +3,7 @@ package executortestevalidacao;
 import java.util.Collection;
 
 import br.org.fdte.persistence.*;
+import br.org.fdte.testCase.TestCase;
 
 import java.io.OutputStream;
 
@@ -40,7 +41,8 @@ class NegativeTestExecution extends ExecutorTesteValidacao {
             boolean abort,
             ExecucaoTesteValidacao currentExecution,
             long activationId,
-            EDTIterativeManager edtExec) {
+            EDTIterativeManager edtExec,
+            TestCase tstCase) {
         //lrb 14/02/2011 this.suite = suite;
         //this.suite = suite;
         this.mode = mode;
@@ -50,6 +52,7 @@ class NegativeTestExecution extends ExecutorTesteValidacao {
         this.currentExecution = currentExecution;
         this.activationId = activationId;
         this.edtExec = edtExec;
+        this.tstCase = tstCase;
     } // constructor
 
     protected TestResults executeNegativeTests(CaracterizacaoTesteValidacao teste,
