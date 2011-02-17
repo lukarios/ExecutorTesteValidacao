@@ -247,13 +247,15 @@ public class ExecutorTesteValidacao extends Thread {
             }
             if ((mode.equals(ExecutionMode.GOLDEN_FILE)) || (mode.equals(ExecutionMode.SYSTEM_TEST))) {
                 persistTestExecutionResults(finalResults);
+                edtExec.stop();
             }
         } catch (Exception ex) {
             res = ExecutionResult.FAILURE;
             return res;
-        } finally {
+        } finally {            
             fireEvent(ExecutionCallback.ExecutionEventType.TEST_ENDED, "Test", t.getId(), t.getNome());
         }
+
 
         return res;
     } // executeValidationTest
