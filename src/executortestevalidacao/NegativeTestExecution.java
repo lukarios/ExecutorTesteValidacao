@@ -25,16 +25,7 @@ class NegativeTestExecution extends ExecutorTesteValidacao {
     private long activationId = 0;
     private int repetitions = 1;
 
-    /*lrb 14/02/2011 NegativeTestExecution(String suite,
-            ExecutionMode mode,
-            int numOfThreads,
-            OutputStream logStream,
-            boolean abort,
-            ExecucaoTesteValidacao currentExecution,
-            long activationId) {
-
-    }*/
-     NegativeTestExecution(
+    NegativeTestExecution(
             ExecutionMode mode,
             int numOfThreads,
             OutputStream logStream,
@@ -43,8 +34,7 @@ class NegativeTestExecution extends ExecutorTesteValidacao {
             long activationId,
             EDTIterativeManager edtExec,
             TestCase tstCase) {
-        //lrb 14/02/2011 this.suite = suite;
-        //this.suite = suite;
+       
         this.mode = mode;
         this.numOfThreads = numOfThreads;
         this.logStream = logStream;
@@ -53,7 +43,7 @@ class NegativeTestExecution extends ExecutorTesteValidacao {
         this.activationId = activationId;
         this.edtExec = edtExec;
         this.tstCase = tstCase;
-    } // constructor
+    } 
 
     protected TestResults executeNegativeTests(CaracterizacaoTesteValidacao teste,
             Collection<Especificos> especificos) throws Exception {

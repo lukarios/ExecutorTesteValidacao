@@ -27,23 +27,10 @@ public class PositiveTestExecution extends ExecutorTesteValidacao {
    private long activationId = 0;
    private CaracterizacaoTesteValidacao teste = null;
    private int repetitions = 1;
+   private Atribute[] atributesAsArray = null;
+   private int currentVaryingAtribute = 0;
 
-   /*PositiveTestExecution(String suite,
-                         ExecutionMode mode,
-                         int numOfThreads,
-                         OutputStream logStream,
-                         boolean abort,
-                         ExecucaoTesteValidacao currentExecution,
-                         long activationId) {
-       this.suite = suite;
-       this.mode = mode;
-       this.numOfThreads = numOfThreads;
-       this.logStream = logStream;
-       this.abort = abort;
-       this.currentExecution = currentExecution;
-       this.activationId = activationId;
-   } // constructor*/
-
+   
    PositiveTestExecution(ExecutionMode mode,
                          int numOfThreads,
                          OutputStream logStream,
@@ -148,8 +135,6 @@ public class PositiveTestExecution extends ExecutorTesteValidacao {
       currentVaryingAtribute = atributesAsArray.length-1;
    } // generateDoc
 
-   private Atribute[] atributesAsArray = null;
-   private int currentVaryingAtribute = 0;
    private void generateNewDoc() {
       boolean foundNewValue = false;
       while ( ! foundNewValue ) {
@@ -188,10 +173,5 @@ public class PositiveTestExecution extends ExecutorTesteValidacao {
        if (res.equals(ExecutionResult.TIMEOUT))
            results.timeout++;
    } // updateTestResults
-
-
-   long getLastActivationId() {
-       return activationId;
-   } // getLastActivationId
 
 } // PositiveTestExecution
