@@ -38,7 +38,6 @@ public class ExecutorTesteValidacao extends Thread {
     protected ExecutionCallback executionCallback;
     protected ExecucaoTesteValidacao currentExecution;
     private int idGroup = -1;
-    //lrb 14/02/2011 protected String suite;
     protected static SuiteTesteValidacao suite;
     protected static SuiteServico suiteServico;
     protected ExecutionMode mode;
@@ -62,7 +61,6 @@ public class ExecutorTesteValidacao extends Thread {
     @Override
     public void run() {
         try {
-            //lrb 14/02/2011 executeValidationSuite(runSuite, runMode, 1, null, false);
             executeValidationSuite(runMode, 1, null, false);
             executionCallback.endOfExecution();
         } catch (Exception e) {
@@ -228,9 +226,9 @@ public class ExecutorTesteValidacao extends Thread {
         tstCase.setTestCasePath(svtvEncontrada.getTestCase());
 
         try {
-            if ((mode.equals(ExecutionMode.GOLDEN_FILE)) || (mode.equals(ExecutionMode.SYSTEM_TEST))) {
-                persistTestExecution(t);
+            if ((mode.equals(ExecutionMode.GOLDEN_FILE)) || (mode.equals(ExecutionMode.SYSTEM_TEST))) {                
                 createEdtExec(svtvEncontrada.getWorkflow(), svtvEncontrada.getResult());
+                persistTestExecution(t);
             }
 
             TestResults finalResults = new TestResults();
@@ -250,6 +248,7 @@ public class ExecutorTesteValidacao extends Thread {
                 edtExec.stop();
             }
         } catch (Exception ex) {
+            JOptionPane.showMessageDialog(JOptionPane.getRootFrame(), ex.getMessage());
             res = ExecutionResult.FAILURE;
             return res;
         } finally {            
@@ -265,7 +264,7 @@ public class ExecutorTesteValidacao extends Thread {
             int numOfThreads,
             OutputStream logStream,
             boolean abort) throws Exception {
-        //lrb 14/02/2011 this.suite = suite;
+        
         this.suiteServico = new SuiteServico();
         this.suite = this.suiteServico.getByName(runSuite);
         this.mode = mode;
@@ -320,8 +319,6 @@ public class ExecutorTesteValidacao extends Thread {
         ExecucaoTesteValidacaoDAO.save(etv);
     }
 
-    //15/02/2011 lrb
-    //criar os executores do edt
     private void createEdtExec(String workflowFileName, String resultDirectory) throws Exception {
         try {
             this.edtExec = new EDTIterativeManager(workflowFileName, resultDirectory);
