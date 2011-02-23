@@ -55,7 +55,7 @@ public class TestModeExecution extends ExecutorTesteValidacao {
 
    protected TestResults executeTests(CaracterizacaoTesteValidacao teste, SuiteTesteValidacao suiteTst) throws Exception {
        results = new TestResults();
-       //Collection<AtivacaoTesteValidacao> goldenActivations = findGoldenActivations(teste);
+       
        Collection<AtivacaoTesteValidacao> goldenActivations = AtivacaoTesteValidacaoDAO.findGoldenActivations(teste,suiteTst);
        for ( AtivacaoTesteValidacao goldenActivation : goldenActivations) {
            long activationTime = System.currentTimeMillis();

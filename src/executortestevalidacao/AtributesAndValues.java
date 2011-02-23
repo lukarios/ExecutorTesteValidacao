@@ -545,7 +545,7 @@ public class AtributesAndValues {
 
    /* Positive or Negative; Sim or Nao */
    static boolean toBoolean(String s) {
-       if ( "N".equals(s)) {
+       if ( "N".equals(s) || "false".equalsIgnoreCase(s)) {
            return false;
        }
        return true;

@@ -69,12 +69,40 @@ public class ExecutorTesteValidacao extends Thread {
     }
 
     private RetrievalResult retrieve(CaracterizacaoTesteValidacao teste) {
+
+        // setar os valores encontrados no xml de resultado no retorno desse método
+        tstCase.readResultFileXML();
+
         RetrievalResult res = new RetrievalResult();
-        res.result = ExecutionResult.SUCCESS;
         res.document = new AtributesAndValues();
-        Atribute a = res.document.newAtribute();
-        a.name = "atr1";
-        res.document.set(a, "valor1");
+        for (Field field : tstCase.getFields()) {
+                Atribute a = res.document.newAtribute();
+                a.name = field.getName();
+                res.document.set(a, field.getValue());
+        }
+
+
+        switch (tstCase.getTstResult().getTstCaseResult()) {
+            case NOK:
+                res.result = ExecutionResult.FAILURE;                
+                break;
+            default:
+                //lrb 23/02/11 somente a execucao com sucesso passara no compare
+                res.result = ExecutionResult.SUCCESS;
+                /*res.document = new AtributesAndValues();
+                Atribute a = res.document.newAtribute();
+                a.name = "atr1";
+                res.document.set(a, "valor1");*/
+                break;
+        }
+
+        /*if (tstCase.getTstResult().getTstCaseResult().equals(tstCase.TestCaseResult.NOK)  {
+        res.result = ExecutionResult.FAILURE;
+        } else {
+        res.result = ExecutionResult.SUCCESS;
+        }*/
+
+
         return res;
     } // retrieve
 
@@ -224,9 +252,11 @@ public class ExecutorTesteValidacao extends Thread {
 
         tstCase.setWorkflowPath(svtvEncontrada.getWorkflow());
         tstCase.setTestCasePath(svtvEncontrada.getTestCase());
+        tstCase.setResultPath(svtvEncontrada.getResult());
+
 
         try {
-            if ((mode.equals(ExecutionMode.GOLDEN_FILE)) || (mode.equals(ExecutionMode.SYSTEM_TEST))) {                
+            if ((mode.equals(ExecutionMode.GOLDEN_FILE)) || (mode.equals(ExecutionMode.SYSTEM_TEST))) {
                 createEdtExec(svtvEncontrada.getWorkflow(), svtvEncontrada.getResult());
                 persistTestExecution(t);
             }
@@ -251,7 +281,7 @@ public class ExecutorTesteValidacao extends Thread {
             JOptionPane.showMessageDialog(JOptionPane.getRootFrame(), ex.getMessage());
             res = ExecutionResult.FAILURE;
             return res;
-        } finally {            
+        } finally {
             fireEvent(ExecutionCallback.ExecutionEventType.TEST_ENDED, "Test", t.getId(), t.getNome());
         }
 
@@ -264,7 +294,7 @@ public class ExecutorTesteValidacao extends Thread {
             int numOfThreads,
             OutputStream logStream,
             boolean abort) throws Exception {
-        
+
         this.suiteServico = new SuiteServico();
         this.suite = this.suiteServico.getByName(runSuite);
         this.mode = mode;

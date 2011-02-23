@@ -3,14 +3,21 @@ package br.org.fdte.testCase;
 import br.org.fdte.commons.exceptions.ExcFillData;
 import java.util.List;
 import java.io.File;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
+
+import java.io.IOException;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import org.w3c.dom.NamedNodeMap;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.xml.sax.SAXException;
+
 
 import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
@@ -24,10 +31,36 @@ public class TestCase {
     String type;
     String workflowPath;
     String testCasePath;
+    String resultPath;
     List<DataGroup> dataGroups = new ArrayList<DataGroup>();
     ExecucaoTesteValidacao execucao;
     Long idActivation;
     String fileNameXML;
+    private String fileNameResultXML;
+
+
+    TestExecutionResult tstResult;
+
+    public enum TestCaseResult {
+
+        NOK, OK
+    };
+
+    public enum SystemStatus {
+
+        FAIL, SUCCESS
+    };
+
+    public class TestExecutionResult {
+
+        TestCaseResult tstCaseResult;
+        String message;
+        SystemStatus systemStatus;
+
+        public TestCaseResult getTstCaseResult() {
+            return tstCaseResult;
+        }
+    };
 
     public String getFileNameXML() {
         return fileNameXML;
@@ -38,6 +71,10 @@ public class TestCase {
         dtGroup.fields = fields;
         dataGroups.clear();
         dataGroups.add(dtGroup);
+    }
+
+    public List<Field> getFields() {
+        return dataGroups.iterator().next().fields;
     }
 
     public void setIdActivation(Long idActivation) {
@@ -110,6 +147,7 @@ public class TestCase {
             Transformer transformer = transformerFactory.newTransformer();
             DOMSource source = new DOMSource(doc);
             fileNameXML = testCasePath + "\\Exec" + execucao.getId().toString() + "_" + idActivation.toString() + ".xml";
+            fileNameResultXML = resultPath + "\\Exec" + execucao.getId().toString() + "_" + idActivation.toString() + ".xml";
             StreamResult result = new StreamResult(new File(fileNameXML));
             transformer.transform(source, result);
 
@@ -117,6 +155,68 @@ public class TestCase {
             pce.printStackTrace();
         } catch (TransformerException tfeTe) {
             tfeTe.printStackTrace();
+        }
+
+    }
+
+    public void readResultFileXML() {
+
+        String strTestCaseResult, strSystemStatus, strMessage;
+
+        try {
+
+            DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
+            DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
+            Document doc = docBuilder.parse(this.fileNameResultXML);
+
+            System.out.println(doc.getDocumentElement().getNodeName());
+
+            for (int item = 0; item < doc.getDocumentElement().getAttributes().getLength(); item++) {
+                System.out.println(doc.getDocumentElement().getAttributes().item(item).getNodeName());
+                System.out.println(doc.getDocumentElement().getAttributes().item(item).getNodeValue());
+            }
+            strTestCaseResult = doc.getDocumentElement().getAttributes().item(0).getNodeValue();
+
+            NodeList listDeNos = doc.getDocumentElement().getChildNodes();
+            for (int item = 0; item < listDeNos.getLength(); item++) {
+                Node noEncontrado = listDeNos.item(item);
+                System.out.println(noEncontrado.getNodeName() + " " + noEncontrado.getTextContent());//getNodeValue());
+
+                NamedNodeMap atributeList = doc.getDocumentElement().getChildNodes().item(item).getAttributes();
+                for (int index = 0; index < atributeList.getLength(); index++) {
+                    System.out.println(atributeList.item(index).getNodeName() + " " + atributeList.item(index).getNodeValue());
+                }
+
+            }
+
+            strSystemStatus = doc.getDocumentElement().getChildNodes().item(0).getAttributes().item(0).getNodeValue();
+            strMessage = doc.getDocumentElement().getChildNodes().item(1).getTextContent();
+
+            System.out.println("TestCaseResult : " + strTestCaseResult
+                    + " SystemStatus : " + strSystemStatus
+                    + " Message : " + strMessage);
+
+            tstResult = new TestExecutionResult();
+
+            tstResult.message = strMessage;
+
+            //obter do xml de saida os parametros passados no contrutor do TestExecutionResult
+            if (strSystemStatus.equalsIgnoreCase("fail")) {
+                tstResult.systemStatus = SystemStatus.FAIL;
+            } else {
+                tstResult.systemStatus = SystemStatus.SUCCESS;
+            }
+
+            if (strTestCaseResult.equalsIgnoreCase("NOK")) {
+                tstResult.tstCaseResult = TestCaseResult.NOK;
+            } else {
+                tstResult.tstCaseResult = TestCaseResult.OK;
+            }
+
+
+        } catch (ParserConfigurationException ex) {
+        } catch (SAXException ex) {
+        } catch (IOException ex) {
         }
 
     }
@@ -129,5 +229,11 @@ public class TestCase {
         this.workflowPath = workflowPath;
     }
 
+    public void setResultPath(String resultPath) {
+        this.resultPath = resultPath;
+    }
 
+    public TestExecutionResult getTstResult() {
+        return tstResult;
+    }
 }
