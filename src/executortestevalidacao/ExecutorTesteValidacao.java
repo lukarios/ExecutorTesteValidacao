@@ -116,6 +116,7 @@ public class ExecutorTesteValidacao extends Thread {
             field.setName(atr.name);
             if (atr.values.iterator().hasNext()) {
                 field.setValue(atr.values.iterator().next().value);
+                field.setPositive(atr.values.iterator().next().positive);
             }
             fields.add(field);
         }

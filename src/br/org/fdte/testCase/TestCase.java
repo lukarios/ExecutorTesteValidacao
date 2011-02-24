@@ -99,8 +99,13 @@ public class TestCase {
             Element rootElement = doc.createElement("testCase");
             doc.appendChild(rootElement);
 
-            Attr attrType = doc.createAttribute("type");
-            attrType.setValue("p");
+            Attr attrType = doc.createAttribute("type");            
+            
+            if (dataGroups.get(0).fields.get(0).isPositive)
+                attrType.setValue("p");
+            else
+                attrType.setValue("n");
+
             rootElement.setAttributeNode(attrType);
 
             Element workflow = doc.createElement("workflow");
