@@ -76,15 +76,15 @@ public class ExecutorTesteValidacao extends Thread {
         RetrievalResult res = new RetrievalResult();
         res.document = new AtributesAndValues();
         for (Field field : tstCase.getFields()) {
-                Atribute a = res.document.newAtribute();
-                a.name = field.getName();
-                res.document.set(a, field.getValue());
+            Atribute a = res.document.newAtribute();
+            a.name = field.getName();
+            res.document.set(a, field.getValue());
         }
 
 
         switch (tstCase.getTstResult().getTstCaseResult()) {
             case NOK:
-                res.result = ExecutionResult.FAILURE;                
+                res.result = ExecutionResult.FAILURE;
                 break;
             default:
                 //lrb 23/02/11 somente a execucao com sucesso passara no compare
@@ -124,10 +124,10 @@ public class ExecutorTesteValidacao extends Thread {
         tstCase.setFields(fields);
 
         try {
-            if (currentExecution != null) {
-                tstCase.createFileXML();
-                this.edtExec.run(tstCase.getFileNameXML());
-            }
+            //if (currentExecution != null) {
+            tstCase.createFileXML();
+            this.edtExec.run(tstCase.getFileNameXML());
+            //}
         } catch (ExcFillData ex) {
             JOptionPane.showMessageDialog(JOptionPane.getRootFrame(), ex.getMessage());
         } catch (IOException ex) {
@@ -147,10 +147,10 @@ public class ExecutorTesteValidacao extends Thread {
         ExecutionResult res = ExecutionResult.SUCCESS;
         inputDoc.dump("Id" + activationId);
         tstCase.setIdActivation(activationId);
-        if (currentExecution != null) {
-            //currentExecution pode ser nula caso estejamos executando um simples exercicio de sistema
-            tstCase.setExecution(currentExecution);
-        }
+        //if (currentExecution != null) {
+        //currentExecution pode ser nula caso estejamos executando um simples exercicio de sistema
+        tstCase.setExecution(currentExecution);
+        //}
         res = submit(teste, inputDoc);
         RetrievalResult retRes = retrieve(teste);
         res = retRes.result;
@@ -173,16 +173,17 @@ public class ExecutorTesteValidacao extends Thread {
             ExecutionResult executionResult,
             long activationStarted) throws Exception {
 
+        AtivacaoTesteValidacao atv = new AtivacaoTesteValidacao();
+        atv.setDocumentoEntrada(validDoc.getBytes());
+        atv.setDocumentoSaida(retDoc.getBytes());
+        atv.setIdExecucaoTesteValidacao(currentExecution);
+        atv.setSequencial((int) activationId);
+        atv.setTipo(positiveToString(positiveTeste));
+        atv.setResultado(resultToString(executionResult));
+        atv.setInicio(new Date(activationStarted));
+        atv.setTermino(new Date(System.currentTimeMillis()));
+
         if ((mode.equals(ExecutionMode.GOLDEN_FILE)) || (mode.equals(ExecutionMode.SYSTEM_TEST))) {
-            AtivacaoTesteValidacao atv = new AtivacaoTesteValidacao();
-            atv.setDocumentoEntrada(validDoc.getBytes());
-            atv.setDocumentoSaida(retDoc.getBytes());
-            atv.setIdExecucaoTesteValidacao(currentExecution);
-            atv.setSequencial((int) activationId);
-            atv.setTipo(positiveToString(positiveTeste));
-            atv.setResultado(resultToString(executionResult));
-            atv.setInicio(new Date(activationStarted));
-            atv.setTermino(new Date(System.currentTimeMillis()));
             AtivacaoTesteValidacaoDAO.save(atv);
         }
     }
@@ -257,10 +258,10 @@ public class ExecutorTesteValidacao extends Thread {
 
 
         try {
-            if ((mode.equals(ExecutionMode.GOLDEN_FILE)) || (mode.equals(ExecutionMode.SYSTEM_TEST))) {
-                createEdtExec(svtvEncontrada.getWorkflow(), svtvEncontrada.getResult());
-                persistTestExecution(t);
-            }
+            //if ((mode.equals(ExecutionMode.GOLDEN_FILE)) || (mode.equals(ExecutionMode.SYSTEM_TEST))) {
+            createEdtExec(svtvEncontrada.getWorkflow(), svtvEncontrada.getResult());
+            persistTestExecution(t);
+            // }
 
             TestResults finalResults = new TestResults();
             TestResults results = null;
@@ -274,10 +275,11 @@ public class ExecutorTesteValidacao extends Thread {
             } else if (mode == ExecutionMode.SYSTEM_TEST) {
                 finalResults = executeInTestMode(t, suite);
             }
-            if ((mode.equals(ExecutionMode.GOLDEN_FILE)) || (mode.equals(ExecutionMode.SYSTEM_TEST))) {
-                persistTestExecutionResults(finalResults);
-                edtExec.stop();
-            }
+            //if ((mode.equals(ExecutionMode.GOLDEN_FILE)) || (mode.equals(ExecutionMode.SYSTEM_TEST))) {
+            persistTestExecutionResults(finalResults);
+            edtExec.stop();
+            // }
+
         } catch (Exception ex) {
             JOptionPane.showMessageDialog(JOptionPane.getRootFrame(), ex.getMessage());
             res = ExecutionResult.FAILURE;
@@ -336,7 +338,9 @@ public class ExecutorTesteValidacao extends Thread {
         currentExecution.setCasosFalha(results.negative_negative + results.positive_negative);
         currentExecution.setCasosSucesso(results.positive_positive + results.negative_positive);
         currentExecution.setCasosTimeout(results.timeout);
-        ExecucaoTesteValidacaoDAO.save(currentExecution);
+        if ((mode.equals(ExecutionMode.GOLDEN_FILE)) || (mode.equals(ExecutionMode.SYSTEM_TEST))) {
+            ExecucaoTesteValidacaoDAO.save(currentExecution);
+        }
     }
 
     private void persistTestExecution(CaracterizacaoTesteValidacao t) throws Exception {
@@ -347,7 +351,11 @@ public class ExecutorTesteValidacao extends Thread {
         etv.setInicio(new Date());
         etv.setModoAtivacao(modeToString(mode));
         etv.setRelatorio("".getBytes()); // workaround : field must not be null
-        ExecucaoTesteValidacaoDAO.save(etv);
+        if (mode == ExecutionMode.GOLDEN_FILE || mode == ExecutionMode.SYSTEM_TEST) {
+            ExecucaoTesteValidacaoDAO.save(etv);
+        } else {
+            etv.setId(new Long(0));
+        }
     }
 
     private void createEdtExec(String workflowFileName, String resultDirectory) throws Exception {
