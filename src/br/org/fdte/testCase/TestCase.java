@@ -174,13 +174,14 @@ public class TestCase {
             DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
             Document doc = docBuilder.parse(this.fileNameResultXML);
 
+           /* Montando a arvore dos atributos encontrados no XML
             System.out.println(doc.getDocumentElement().getNodeName());
 
             for (int item = 0; item < doc.getDocumentElement().getAttributes().getLength(); item++) {
                 System.out.println(doc.getDocumentElement().getAttributes().item(item).getNodeName());
                 System.out.println(doc.getDocumentElement().getAttributes().item(item).getNodeValue());
             }
-            strTestCaseResult = doc.getDocumentElement().getAttributes().item(0).getNodeValue();
+            
 
             NodeList listDeNos = doc.getDocumentElement().getChildNodes();
             for (int item = 0; item < listDeNos.getLength(); item++) {
@@ -192,8 +193,9 @@ public class TestCase {
                     System.out.println(atributeList.item(index).getNodeName() + " " + atributeList.item(index).getNodeValue());
                 }
 
-            }
+            }*/
 
+            strTestCaseResult = doc.getDocumentElement().getAttributes().item(0).getNodeValue();
             strSystemStatus = doc.getDocumentElement().getChildNodes().item(0).getAttributes().item(0).getNodeValue();
             strMessage = doc.getDocumentElement().getChildNodes().item(1).getTextContent();
 
