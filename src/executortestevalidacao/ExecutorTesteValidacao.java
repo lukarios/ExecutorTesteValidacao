@@ -37,6 +37,8 @@ public class ExecutorTesteValidacao extends Thread {
     };
     protected ExecutionCallback executionCallback;
     protected ExecucaoTesteValidacao currentExecution;
+    //lrb 11/03/2011
+    protected AtivacaoTesteValidacao currentActivation;
     private int idGroup = -1;
     protected static SuiteTesteValidacao suite;
     protected static SuiteServico suiteServico;
@@ -139,18 +141,33 @@ public class ExecutorTesteValidacao extends Thread {
         return res;
     }
 
-    protected RetrievalResult executeActivation(CaracterizacaoTesteValidacao teste,
+    protected final RetrievalResult executeActivation(CaracterizacaoTesteValidacao teste,
             AtributesAndValues inputDoc,
             long activationId) {
 
         fireEvent(ExecutionCallback.ExecutionEventType.ATIVATION_STARTED, "Activation", activationId, "");
         ExecutionResult res = ExecutionResult.SUCCESS;
-        inputDoc.dump("Id" + activationId);
-        tstCase.setIdActivation(activationId);
+
+        //lrb 11/03/2011
+        currentActivation = new AtivacaoTesteValidacao();
+        currentActivation.setSequencial(Integer.parseInt(Long.toString(activationId)));
+        currentActivation.setIdExecucaoTesteValidacao(currentExecution);
+        currentActivation.setTipo(positiveToString(false));
+        
+        if ((mode.equals(ExecutionMode.GOLDEN_FILE)) || (mode.equals(ExecutionMode.SYSTEM_TEST))) {
+            AtivacaoTesteValidacaoDAO.save(currentActivation);
+            inputDoc.dump("Id" + currentActivation.getId());
+            tstCase.setIdActivation(currentActivation.getId());
+        } else {
+            inputDoc.dump("Id" + activationId);
+            tstCase.setIdActivation(activationId);
+        }
+
         //if (currentExecution != null) {
         //currentExecution pode ser nula caso estejamos executando um simples exercicio de sistema
         tstCase.setExecution(currentExecution);
         //}
+
         res = submit(teste, inputDoc);
         RetrievalResult retRes = retrieve(teste);
         res = retRes.result;
@@ -165,7 +182,7 @@ public class ExecutorTesteValidacao extends Thread {
         return retRes;
     }
 
-    protected void persistActivation(CaracterizacaoTesteValidacao teste,
+    protected final void persistActivation(CaracterizacaoTesteValidacao teste,
             AtributesAndValues validDoc,
             AtributesAndValues retDoc,
             long activationId,
@@ -173,7 +190,7 @@ public class ExecutorTesteValidacao extends Thread {
             ExecutionResult executionResult,
             long activationStarted) throws Exception {
 
-        AtivacaoTesteValidacao atv = new AtivacaoTesteValidacao();
+        /* lrb 11/03/2011 AtivacaoTesteValidacao atv = new AtivacaoTesteValidacao();
         atv.setDocumentoEntrada(validDoc.getBytes());
         atv.setDocumentoSaida(retDoc.getBytes());
         atv.setIdExecucaoTesteValidacao(currentExecution);
@@ -181,10 +198,22 @@ public class ExecutorTesteValidacao extends Thread {
         atv.setTipo(positiveToString(positiveTeste));
         atv.setResultado(resultToString(executionResult));
         atv.setInicio(new Date(activationStarted));
-        atv.setTermino(new Date(System.currentTimeMillis()));
+        atv.setTermino(new Date(System.currentTimeMillis())); */
+
+        //lrb 11/03/2011
+        currentActivation.setDocumentoEntrada(validDoc.getBytes());
+        currentActivation.setDocumentoSaida(retDoc.getBytes());
+        currentActivation.setIdExecucaoTesteValidacao(currentExecution);
+        currentActivation.setSequencial((int) activationId);
+        currentActivation.setTipo(positiveToString(positiveTeste));
+        currentActivation.setResultado(resultToString(executionResult));
+        currentActivation.setInicio(new Date(activationStarted));
+        currentActivation.setTermino(new Date(System.currentTimeMillis()));
 
         if ((mode.equals(ExecutionMode.GOLDEN_FILE)) || (mode.equals(ExecutionMode.SYSTEM_TEST))) {
-            AtivacaoTesteValidacaoDAO.save(atv);
+            AtivacaoTesteValidacaoDAO.save(currentActivation);
+        } else {
+            AtivacaoTesteValidacaoDAO.deleteByExecution(currentExecution);
         }
     }
 
