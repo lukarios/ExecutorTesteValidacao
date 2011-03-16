@@ -153,6 +153,8 @@ public class ExecutorTesteValidacao extends Thread {
         currentActivation.setSequencial(Integer.parseInt(Long.toString(activationId)));
         currentActivation.setIdExecucaoTesteValidacao(currentExecution);
         currentActivation.setTipo(positiveToString(false));
+        currentActivation.setInicio(new Date(System.currentTimeMillis()));
+        currentActivation.setTermino(new Date(System.currentTimeMillis()));
         
         if ((mode.equals(ExecutionMode.GOLDEN_FILE)) || (mode.equals(ExecutionMode.SYSTEM_TEST))) {
             AtivacaoTesteValidacaoDAO.save(currentActivation);
