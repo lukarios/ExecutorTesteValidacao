@@ -1,6 +1,5 @@
 package executortestevalidacao;
 
-import br.org.fdte.commons.exceptions.ExcFillData;
 import br.org.fdte.dao.AtivacaoTesteValidacaoDAO;
 import br.org.fdte.dao.ExecucaoTesteValidacaoDAO;
 
@@ -18,11 +17,9 @@ import executortestevalidacao.AtributesAndValues.Atribute;
 import br.org.fdte.testCase.Field;
 import br.org.fdte.testCase.TestCase;
 import br.org.servicos.SuiteServico;
-import java.io.IOException;
 import java.util.List;
 import javax.swing.JOptionPane;
 import org.cabreva.edt.EDTIterativeManager;
-import org.jdom.JDOMException;
 
 public class ExecutorTesteValidacao extends Thread {
 
@@ -126,15 +123,10 @@ public class ExecutorTesteValidacao extends Thread {
         tstCase.setFields(fields);
 
         try {
-            //if (currentExecution != null) {
             tstCase.createFileXML();
             this.edtExec.run(tstCase.getFileNameXML());
-            //}
-        } catch (ExcFillData ex) {
-            JOptionPane.showMessageDialog(JOptionPane.getRootFrame(), ex.getMessage());
-        } catch (IOException ex) {
-            JOptionPane.showMessageDialog(JOptionPane.getRootFrame(), ex.getMessage());
-        } catch (JDOMException ex) {
+        } catch (Exception ex) {
+            res = ExecutionResult.FAILURE;
             JOptionPane.showMessageDialog(JOptionPane.getRootFrame(), ex.getMessage());
         }
 
@@ -155,7 +147,7 @@ public class ExecutorTesteValidacao extends Thread {
         currentActivation.setTipo(positiveToString(false));
         currentActivation.setInicio(new Date(System.currentTimeMillis()));
         currentActivation.setTermino(new Date(System.currentTimeMillis()));
-        
+
         if ((mode.equals(ExecutionMode.GOLDEN_FILE)) || (mode.equals(ExecutionMode.SYSTEM_TEST))) {
             AtivacaoTesteValidacaoDAO.save(currentActivation);
             inputDoc.dump("Id" + currentActivation.getId());
@@ -165,21 +157,27 @@ public class ExecutorTesteValidacao extends Thread {
             tstCase.setIdActivation(activationId);
         }
 
-        //if (currentExecution != null) {
-        //currentExecution pode ser nula caso estejamos executando um simples exercicio de sistema
         tstCase.setExecution(currentExecution);
-        //}
 
         res = submit(teste, inputDoc);
-        RetrievalResult retRes = retrieve(teste);
-        res = retRes.result;
+
+
+
+        RetrievalResult retRes = new RetrievalResult();
+        retRes.result = ExecutionResult.FAILURE;
+
         ExecutionCallback.ExecutionEventType etv = ExecutionCallback.ExecutionEventType.ATIVATION_ENDED_SUCCESS;
+
         if (res.equals(ExecutionResult.FAILURE)) {
             etv = ExecutionCallback.ExecutionEventType.ATIVATION_ENDED_FAIL;
-        }
-        if (res.equals(ExecutionResult.TIMEOUT)) {
+        } else if (res.equals(ExecutionResult.TIMEOUT)) {
             etv = ExecutionCallback.ExecutionEventType.ATIVATION_ENDED_TIMEOUT;
+        } else if (res.equals(ExecutionResult.SUCCESS)) {
+            //o retrive somente é executado caso o submit nao tenha retornado erro
+            retRes = retrieve(teste);
+            res = retRes.result;
         }
+
         fireEvent(etv, "Activation", activationId, "");
         return retRes;
     }
@@ -192,16 +190,6 @@ public class ExecutorTesteValidacao extends Thread {
             ExecutionResult executionResult,
             long activationStarted) throws Exception {
 
-        /* lrb 11/03/2011 AtivacaoTesteValidacao atv = new AtivacaoTesteValidacao();
-        atv.setDocumentoEntrada(validDoc.getBytes());
-        atv.setDocumentoSaida(retDoc.getBytes());
-        atv.setIdExecucaoTesteValidacao(currentExecution);
-        atv.setSequencial((int) activationId);
-        atv.setTipo(positiveToString(positiveTeste));
-        atv.setResultado(resultToString(executionResult));
-        atv.setInicio(new Date(activationStarted));
-        atv.setTermino(new Date(System.currentTimeMillis())); */
-
         //lrb 11/03/2011
         currentActivation.setDocumentoEntrada(validDoc.getBytes());
         currentActivation.setDocumentoSaida(retDoc.getBytes());
@@ -212,11 +200,14 @@ public class ExecutorTesteValidacao extends Thread {
         currentActivation.setInicio(new Date(activationStarted));
         currentActivation.setTermino(new Date(System.currentTimeMillis()));
 
-        if ((mode.equals(ExecutionMode.GOLDEN_FILE)) || (mode.equals(ExecutionMode.SYSTEM_TEST))) {
-            AtivacaoTesteValidacaoDAO.save(currentActivation);
-        } else {
+        if (mode.equals(ExecutionMode.GOLDEN_FILE) || mode.equals(ExecutionMode.SYSTEM_TEST)) {
+                AtivacaoTesteValidacaoDAO.save(currentActivation);
+            }
+        else  {
             AtivacaoTesteValidacaoDAO.deleteByExecution(currentExecution);
         }
+
+        
     }
 
     private TestResults executeNegativeTests(CaracterizacaoTesteValidacao t,
@@ -289,10 +280,8 @@ public class ExecutorTesteValidacao extends Thread {
 
 
         try {
-            //if ((mode.equals(ExecutionMode.GOLDEN_FILE)) || (mode.equals(ExecutionMode.SYSTEM_TEST))) {
             createEdtExec(svtvEncontrada.getWorkflow(), svtvEncontrada.getResult());
             persistTestExecution(t);
-            // }
 
             TestResults finalResults = new TestResults();
             TestResults results = null;
@@ -306,10 +295,10 @@ public class ExecutorTesteValidacao extends Thread {
             } else if (mode == ExecutionMode.SYSTEM_TEST) {
                 finalResults = executeInTestMode(t, suite);
             }
-            //if ((mode.equals(ExecutionMode.GOLDEN_FILE)) || (mode.equals(ExecutionMode.SYSTEM_TEST))) {
+
             persistTestExecutionResults(finalResults);
             edtExec.stop();
-            // }
+
 
         } catch (Exception ex) {
             JOptionPane.showMessageDialog(JOptionPane.getRootFrame(), ex.getMessage());
@@ -384,8 +373,6 @@ public class ExecutorTesteValidacao extends Thread {
         etv.setRelatorio("".getBytes()); // workaround : field must not be null
         if (mode == ExecutionMode.GOLDEN_FILE || mode == ExecutionMode.SYSTEM_TEST) {
             ExecucaoTesteValidacaoDAO.save(etv);
-        } else {
-            etv.setId(new Long(0));
         }
     }
 

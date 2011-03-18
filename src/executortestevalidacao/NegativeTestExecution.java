@@ -84,14 +84,14 @@ class NegativeTestExecution extends ExecutorTesteValidacao {
             validDoc.set(t, validAtr);
         } // for each atribute
         return results;
-    } // executeNegativeTests
+    } 
 
     private AtributesAndValues buildValidDoc(AtributesAndValues in) {
         // TO DO : check if this doc is really valid by checking rules
         // A new valid doc may be needed if the previous one becomes invalid
         // by checking rules
         return new AtributesAndValues(in, new Boolean(true), true);
-    } // buildValidDoc
+    } 
 
     private void updateTestResults(ExecutionResult res) {
         if (res.equals(ExecutionResult.FAILURE)) {
@@ -103,10 +103,10 @@ class NegativeTestExecution extends ExecutorTesteValidacao {
         if (res.equals(ExecutionResult.TIMEOUT)) {
             results.timeout++;
         }
-    } // updateTestResults
+    } 
 
     long getLastActivationId() {
         return activationId;
-    } // getLastActivationId
-} // NegativeTestExecution
+    } 
+} 
 
