@@ -17,6 +17,11 @@ import executortestevalidacao.AtributesAndValues.Atribute;
 import br.org.fdte.testCase.Field;
 import br.org.fdte.testCase.TestCase;
 import br.org.servicos.SuiteServico;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileReader;
 import java.util.List;
 import javax.swing.JOptionPane;
 import org.cabreva.edt.EDTIterativeManager;
@@ -200,14 +205,29 @@ public class ExecutorTesteValidacao extends Thread {
         currentActivation.setInicio(new Date(activationStarted));
         currentActivation.setTermino(new Date(System.currentTimeMillis()));
 
+
+        File fileOut = new File(tstCase.getFileNameResultXML());
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        FileInputStream in = new FileInputStream(fileOut);
+        int b;
+        while ((b = in.read()) > -1) {
+            out.write(b);
+        }
+        out.close();
+        in.close();
+        byte[] array = out.toByteArray();       
+
+
+        currentActivation.setScreenshot(array);
+
+
         if (mode.equals(ExecutionMode.GOLDEN_FILE) || mode.equals(ExecutionMode.SYSTEM_TEST)) {
-                AtivacaoTesteValidacaoDAO.save(currentActivation);
-            }
-        else  {
+            AtivacaoTesteValidacaoDAO.save(currentActivation);
+        } else {
             AtivacaoTesteValidacaoDAO.deleteByExecution(currentExecution);
         }
 
-        
+
     }
 
     private TestResults executeNegativeTests(CaracterizacaoTesteValidacao t,

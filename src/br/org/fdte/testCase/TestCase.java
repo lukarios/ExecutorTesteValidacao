@@ -222,4 +222,8 @@ public class TestCase {
     public TestExecutionResult getTstResult() {
         return tstResult;
     }
+
+    public String getFileNameResultXML() {
+        return fileNameResultXML;
+    }
 }
