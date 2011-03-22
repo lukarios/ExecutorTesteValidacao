@@ -91,21 +91,26 @@ public class ExecutorTesteValidacao extends Thread {
                 res.result = ExecutionResult.FAILURE;
                 break;
             default:
-                //lrb 23/02/11 somente a execucao com sucesso passara no compare
                 res.result = ExecutionResult.SUCCESS;
-                /*res.document = new AtributesAndValues();
-                Atribute a = res.document.newAtribute();
-                a.name = "atr1";
-                res.document.set(a, "valor1");*/
                 break;
         }
 
-        /*if (tstCase.getTstResult().getTstCaseResult().equals(tstCase.TestCaseResult.NOK)  {
-        res.result = ExecutionResult.FAILURE;
-        } else {
-        res.result = ExecutionResult.SUCCESS;
-        }*/
+        //lê o screenshot gerado pela execucao do edt e o seta no atributo do currentActivation
+        try {
+            File fileOut = new File(tstCase.getFileNameResultXML().replace("xml", "png"));
+            FileInputStream in = new FileInputStream(fileOut);
+            ByteArrayOutputStream out = new ByteArrayOutputStream();            
+            int b;
+            while ((b = in.read()) > -1) {
+                out.write(b);
+            }            
+            byte[] array = out.toByteArray();
+            out.close();
+            in.close();
 
+            currentActivation.setScreenshot(array);
+        } catch (Exception ex) {
+        }
 
         return res;
     } // retrieve
@@ -166,8 +171,6 @@ public class ExecutorTesteValidacao extends Thread {
 
         res = submit(teste, inputDoc);
 
-
-
         RetrievalResult retRes = new RetrievalResult();
         retRes.result = ExecutionResult.FAILURE;
 
@@ -206,27 +209,13 @@ public class ExecutorTesteValidacao extends Thread {
         currentActivation.setTermino(new Date(System.currentTimeMillis()));
 
 
-        File fileOut = new File(tstCase.getFileNameResultXML());
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-        FileInputStream in = new FileInputStream(fileOut);
-        int b;
-        while ((b = in.read()) > -1) {
-            out.write(b);
-        }
-        out.close();
-        in.close();
-        byte[] array = out.toByteArray();       
-
-
-        currentActivation.setScreenshot(array);
-
-
         if (mode.equals(ExecutionMode.GOLDEN_FILE) || mode.equals(ExecutionMode.SYSTEM_TEST)) {
             AtivacaoTesteValidacaoDAO.save(currentActivation);
         } else {
             AtivacaoTesteValidacaoDAO.deleteByExecution(currentExecution);
         }
 
+        currentActivation = null;
 
     }
 
