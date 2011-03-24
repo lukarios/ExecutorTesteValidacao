@@ -90,7 +90,7 @@ public class ExecutorTesteValidacao extends Thread {
             case NOK:
                 res.result = ExecutionResult.FAILURE;
                 break;
-            default:
+            case OK:
                 res.result = ExecutionResult.SUCCESS;
                 break;
         }
@@ -117,6 +117,7 @@ public class ExecutorTesteValidacao extends Thread {
 
     private ExecutionResult submit(CaracterizacaoTesteValidacao teste,
             AtributesAndValues doc) {
+
         ExecutionResult res = ExecutionResult.SUCCESS;
 
         List<Field> fields = new ArrayList<Field>();
@@ -131,6 +132,7 @@ public class ExecutorTesteValidacao extends Thread {
         }
 
         tstCase.setFields(fields);
+
 
         try {
             tstCase.createFileXML();
@@ -168,6 +170,7 @@ public class ExecutorTesteValidacao extends Thread {
         }
 
         tstCase.setExecution(currentExecution);
+
 
         res = submit(teste, inputDoc);
 

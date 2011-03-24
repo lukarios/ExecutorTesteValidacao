@@ -13,9 +13,6 @@ import java.io.IOException;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-import org.w3c.dom.NamedNodeMap;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 
@@ -38,16 +35,13 @@ public class TestCase {
     String fileNameXML;
     private String fileNameResultXML;
 
-
     TestExecutionResult tstResult;
 
     public enum TestCaseResult {
-
         NOK, OK
     };
 
     public enum SystemStatus {
-
         FAIL, SUCCESS
     };
 
@@ -100,12 +94,11 @@ public class TestCase {
             doc.appendChild(rootElement);
 
             Attr attrType = doc.createAttribute("type");            
-            
-            if (dataGroups.get(0).fields.get(0).isPositive)
+            /*if (dataGroups.get(0).fields.get(0).isPositive)
                 attrType.setValue("p");
             else
-                attrType.setValue("n");
-
+                attrType.setValue("n");*/
+            attrType.setValue(type);
             rootElement.setAttributeNode(attrType);
 
             Element workflow = doc.createElement("workflow");
