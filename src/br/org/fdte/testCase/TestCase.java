@@ -34,14 +34,15 @@ public class TestCase {
     Long idActivation;
     String fileNameXML;
     private String fileNameResultXML;
-
     TestExecutionResult tstResult;
 
     public enum TestCaseResult {
+
         NOK, OK
     };
 
     public enum SystemStatus {
+
         FAIL, SUCCESS
     };
 
@@ -93,11 +94,11 @@ public class TestCase {
             Element rootElement = doc.createElement("testCase");
             doc.appendChild(rootElement);
 
-            Attr attrType = doc.createAttribute("type");            
+            Attr attrType = doc.createAttribute("type");
             /*if (dataGroups.get(0).fields.get(0).isPositive)
-                attrType.setValue("p");
+            attrType.setValue("p");
             else
-                attrType.setValue("n");*/
+            attrType.setValue("n");*/
             attrType.setValue(type);
             rootElement.setAttributeNode(attrType);
 
@@ -144,8 +145,13 @@ public class TestCase {
             TransformerFactory transformerFactory = TransformerFactory.newInstance();
             Transformer transformer = transformerFactory.newTransformer();
             DOMSource source = new DOMSource(doc);
-            fileNameXML = testCasePath + "\\Exec" + execucao.getId().toString() + "_" + idActivation.toString() + ".xml";
-            fileNameResultXML = resultPath + "\\Exec" + execucao.getId().toString() + "_" + idActivation.toString() + ".xml";
+            if (execucao.getId() == null) {
+                fileNameXML = testCasePath + "\\Exec" + "_SystemExercise_" + idActivation.toString() + ".xml";
+                fileNameResultXML = resultPath + "\\Exec" + "_SystemExercise_" + idActivation.toString() + ".xml";
+            } else {
+                fileNameXML = testCasePath + "\\Exec" + execucao.getId().toString() + "_" + idActivation.toString() + ".xml";
+                fileNameResultXML = resultPath + "\\Exec" + execucao.getId().toString() + "_" + idActivation.toString() + ".xml";
+            }
             StreamResult result = new StreamResult(new File(fileNameXML));
             transformer.transform(source, result);
 
