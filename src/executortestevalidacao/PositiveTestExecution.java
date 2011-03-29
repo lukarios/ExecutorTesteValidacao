@@ -94,7 +94,7 @@ public class PositiveTestExecution extends ExecutorTesteValidacao {
        tstCase.setType(positiveToString(true));
        RetrievalResult retRes = executeActivation(teste, doc, activationId);
        updateTestResults(retRes.result);       
-       persistActivation(teste, doc, retRes.document, activationId, true, retRes.result, activationTime);
+       persistActivation(teste, doc, retRes.document, activationId, true, retRes.result, activationTime, null);
        activationId++;
        return retRes;
    } // process

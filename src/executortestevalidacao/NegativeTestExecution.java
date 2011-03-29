@@ -78,7 +78,7 @@ class NegativeTestExecution extends ExecutorTesteValidacao {
                 if (needAbort(retRes.result)) {
                     return results;
                 }
-                persistActivation(teste, validDoc, retRes.document, activationId, false, retRes.result, activationTime);
+                persistActivation(teste, validDoc, retRes.document, activationId, false, retRes.result, activationTime, null);
                 activationId++;
             } // for each value
             validDoc.set(t, validAtr);

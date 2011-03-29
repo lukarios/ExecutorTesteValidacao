@@ -199,7 +199,8 @@ public class ExecutorTesteValidacao extends Thread {
             long activationId,
             boolean positiveTeste,
             ExecutionResult executionResult,
-            long activationStarted) throws Exception {
+            long activationStarted,
+            ExecutionResult goldenCompare) throws Exception {
 
         //lrb 11/03/2011
         currentActivation.setDocumentoEntrada(validDoc.getBytes());
@@ -211,6 +212,14 @@ public class ExecutorTesteValidacao extends Thread {
         currentActivation.setInicio(new Date(activationStarted));
         currentActivation.setTermino(new Date(System.currentTimeMillis()));
 
+        if (goldenCompare != null) {
+            if (goldenCompare.equals(ExecutionResult.SUCCESS)) {
+                currentActivation.setGoldenCompare("S");
+            }
+            else if (goldenCompare.equals(ExecutionResult.FAILURE)) {
+                currentActivation.setGoldenCompare("F");
+            }
+        }
 
         if (mode.equals(ExecutionMode.GOLDEN_FILE) || mode.equals(ExecutionMode.SYSTEM_TEST)) {
             AtivacaoTesteValidacaoDAO.save(currentActivation);

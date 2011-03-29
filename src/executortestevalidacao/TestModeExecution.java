@@ -47,24 +47,27 @@ public class TestModeExecution extends ExecutorTesteValidacao {
             AtributesAndValues expectedDoc = getOutputDoc(goldenActivation);
             boolean testType = getTestType(goldenActivation);
             tstCase.setType(positiveToString(testType));
-            RetrievalResult result = executeActivation(teste, inputDoc, activationId);
+            RetrievalResult resultTeste = executeActivation(teste, inputDoc, activationId);
             ExecutionResult res = null;
-            if (result.result.equals(ExecutionResult.TIMEOUT)) {
+            ExecutionResult compareGolden = null;
+            if (resultTeste.result.equals(ExecutionResult.TIMEOUT)) {
                 res = ExecutionResult.TIMEOUT;
             } else {
-                if (goldenActivation.getResultado().equalsIgnoreCase("S") && result.result.equals(ExecutionResult.SUCCESS)) {
-                    res = compare(expectedDoc, result.document);
-                } else if (goldenActivation.getResultado().equalsIgnoreCase("F") && result.result.equals(ExecutionResult.FAILURE)) {
-                    res = compare(expectedDoc, result.document);
+                res = resultTeste.result;
+                compareGolden = compare(expectedDoc, resultTeste.document);
+                /*if (goldenActivation.getResultado().equalsIgnoreCase("S") && resultTeste.result.equals(ExecutionResult.SUCCESS)) {
+                    res = compare(expectedDoc, resultTeste.document);
+                } else if (goldenActivation.getResultado().equalsIgnoreCase("F") && resultTeste.result.equals(ExecutionResult.FAILURE)) {
+                    res = compare(expectedDoc, resultTeste.document);
                 } else {
                     res = ExecutionResult.FAILURE;
-                }
+                }*/
             }
             updateTestResults(res, testType);
             if (needAbort(res)) {
                 return results;
             }
-            persistActivation(teste, inputDoc, result.document, activationId, testType, res, activationTime);
+            persistActivation(teste, inputDoc, resultTeste.document, activationId, testType, res, activationTime, compareGolden);
             activationId++;
         }
         return results;
