@@ -1,4 +1,3 @@
-
 package executortestevalidacao;
 
 import java.util.Collection;

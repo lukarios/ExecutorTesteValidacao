@@ -1,42 +1,41 @@
 package executortestevalidacao;
 
-import br.org.fdte.dao.AtivacaoTesteValidacaoDAO;
-import br.org.fdte.dao.ExecucaoTesteValidacaoDAO;
-
-import java.util.Collection;
-import java.util.ArrayList;
-import java.util.Date;
+//import br.org.fdte.dao.AtivacaoTesteValidacaoDAO;
+//import br.org.fdte.dao.ExecucaoTesteValidacaoDAO;
+import br.org.servicos.ExecucaoTstValidacaoServico;
+import br.org.servicos.SuiteServico;
 
 import br.org.fdte.persistence.*;
 
+import java.util.Collection;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Date;
+
 import java.io.OutputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
 
 import executortestevalidacao.ExecutionCallback.ExecutionEvent;
 import executortestevalidacao.AtributesAndValues.Atribute;
 
 import br.org.fdte.testCase.Field;
 import br.org.fdte.testCase.TestCase;
-import br.org.servicos.SuiteServico;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileReader;
-import java.util.List;
+
 import javax.swing.JOptionPane;
 import org.cabreva.edt.EDTIterativeManager;
 
 public class ExecutorTesteValidacao extends Thread {
 
     public enum ExecutionMode {
-
         GOLDEN_FILE, SYSTEM_TEST, SYSTEM_EXERCIZE
     };
 
     public enum ExecutionResult {
-
         SUCCESS, FAILURE, TIMEOUT
     };
+    
     protected ExecutionCallback executionCallback;
     protected ExecucaoTesteValidacao currentExecution;
     //lrb 11/03/2011
@@ -161,16 +160,16 @@ public class ExecutorTesteValidacao extends Thread {
         currentActivation.setTermino(new Date(System.currentTimeMillis()));
 
         if ((mode.equals(ExecutionMode.GOLDEN_FILE)) || (mode.equals(ExecutionMode.SYSTEM_TEST))) {
-            AtivacaoTesteValidacaoDAO.save(currentActivation);
+            //AtivacaoTesteValidacaoDAO.save(currentActivation);
+            new ExecucaoTstValidacaoServico().saveAtivacao(currentActivation);
             inputDoc.dump("Id" + currentActivation.getId());
             tstCase.setIdActivation(currentActivation.getId());
         } else {
             inputDoc.dump("Id" + activationId);
             tstCase.setIdActivation(activationId);
         }
-
+        
         tstCase.setExecution(currentExecution);
-
 
         res = submit(teste, inputDoc);
 
@@ -222,9 +221,11 @@ public class ExecutorTesteValidacao extends Thread {
         }
 
         if (mode.equals(ExecutionMode.GOLDEN_FILE) || mode.equals(ExecutionMode.SYSTEM_TEST)) {
-            AtivacaoTesteValidacaoDAO.save(currentActivation);
+           // AtivacaoTesteValidacaoDAO.save(currentActivation);
+            new ExecucaoTstValidacaoServico().saveAtivacao(currentActivation);
         } else {
-            AtivacaoTesteValidacaoDAO.deleteByExecution(currentExecution);
+            //AtivacaoTesteValidacaoDAO.deleteByExecution(currentExecution);
+            new ExecucaoTstValidacaoServico().deleteAtivacoes(currentExecution);
         }
 
         currentActivation = null;
@@ -359,7 +360,8 @@ public class ExecutorTesteValidacao extends Thread {
         }
 
         ExecutionResult res = ExecutionResult.SUCCESS;
-        idGroup = ExecucaoTesteValidacaoDAO.getMaxIdGrupoExecPerSuite(suite);
+        //idGroup = ExecucaoTesteValidacaoDAO.getMaxIdGrupoExecPerSuite(suite);
+        idGroup = new ExecucaoTstValidacaoServico().getMaxIdGrupoExecPerSuite(suite);
         idGroup++;
         for (CaracterizacaoTesteValidacao t : tests) {
             res = executeValidationTest(t);
@@ -380,7 +382,8 @@ public class ExecutorTesteValidacao extends Thread {
         currentExecution.setCasosSucesso(results.positive_positive + results.negative_positive);
         currentExecution.setCasosTimeout(results.timeout);
         if ((mode.equals(ExecutionMode.GOLDEN_FILE)) || (mode.equals(ExecutionMode.SYSTEM_TEST))) {
-            ExecucaoTesteValidacaoDAO.save(currentExecution);
+            ExecucaoTstValidacaoServico execServ = new ExecucaoTstValidacaoServico();
+            execServ.save(currentExecution);
         }
     }
 
@@ -393,7 +396,8 @@ public class ExecutorTesteValidacao extends Thread {
         etv.setModoAtivacao(modeToString(mode));
         etv.setRelatorio("".getBytes()); // workaround : field must not be null
         if (mode == ExecutionMode.GOLDEN_FILE || mode == ExecutionMode.SYSTEM_TEST) {
-            ExecucaoTesteValidacaoDAO.save(etv);
+            ExecucaoTstValidacaoServico execServ = new ExecucaoTstValidacaoServico();
+            execServ.save(etv);
         }
     }
 

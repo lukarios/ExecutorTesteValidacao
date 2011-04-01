@@ -1,16 +1,18 @@
 package executortestevalidacao;
 
-import br.org.fdte.dao.AtivacaoTesteValidacaoDAO;
+//import br.org.fdte.dao.AtivacaoTesteValidacaoDAO;
 import java.util.Collection;
 
 import br.org.fdte.persistence.*;
 import br.org.fdte.testCase.TestCase;
+import br.org.servicos.ExecucaoTstValidacaoServico;
 
 import java.io.OutputStream;
 
 import executortestevalidacao.ExecutorTesteValidacao.ExecutionMode;
 import executortestevalidacao.ExecutorTesteValidacao.ExecutionResult;
 import executortestevalidacao.ExecutorTesteValidacao.RetrievalResult;
+
 import org.cabreva.edt.EDTIterativeManager;
 
 public class TestModeExecution extends ExecutorTesteValidacao {
@@ -39,7 +41,8 @@ public class TestModeExecution extends ExecutorTesteValidacao {
     protected TestResults executeTests(CaracterizacaoTesteValidacao teste, SuiteTesteValidacao suiteTst) throws Exception {
         results = new TestResults();
 
-        Collection<AtivacaoTesteValidacao> goldenActivations = AtivacaoTesteValidacaoDAO.findGoldenActivations(teste, suiteTst);
+        //Collection<AtivacaoTesteValidacao> goldenActivations = AtivacaoTesteValidacaoDAO.findGoldenActivations(teste, suiteTst);
+        Collection<AtivacaoTesteValidacao> goldenActivations = new ExecucaoTstValidacaoServico().findGoldenActivations(teste, suiteTst);
         for (AtivacaoTesteValidacao goldenActivation : goldenActivations) {
             long activationTime = System.currentTimeMillis();
             AtributesAndValues inputDoc = getInputDoc(goldenActivation);
