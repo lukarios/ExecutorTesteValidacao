@@ -223,10 +223,10 @@ public class ExecutorTesteValidacao extends Thread {
         if (mode.equals(ExecutionMode.GOLDEN_FILE) || mode.equals(ExecutionMode.SYSTEM_TEST)) {
            // AtivacaoTesteValidacaoDAO.save(currentActivation);
             new ExecucaoTstValidacaoServico().saveAtivacao(currentActivation);
-        } else {
+        } /* lrb 04/04/2011 else {
             //AtivacaoTesteValidacaoDAO.deleteByExecution(currentExecution);
             new ExecucaoTstValidacaoServico().deleteAtivacoes(currentExecution);
-        }
+        }*/
 
         currentActivation = null;
 
